@@ -10,25 +10,16 @@ This project provides a collection of utility libraries to help reduce the need 
 
 If there are other commonly used code or data-structures that should be added, please add a feature request!
 
-##### Table of Contents:
-* [stringlib](#stringlib) - C-string utilities
-* [fileutils](#fileutils) - File system utilities
-* [bitarray](#bitarray)
-* [linked list](#linkedlist)
-* [doubly linked list](#doublylinkedlist)
-* [stack](#stack)
-* [queue](#queue)
-* [graph](#graph)
-* [permutations](#permutations)
-* [timing-c](#timing-c) - Code timing utility
-* [minunit](#minunit) - Unit testing
+## Credits
 
-##### Recommended External Libraries
-* [set](https://github.com/barrust/set)
-* [hashmap](https://github.com/barrust/hashmap)
-* [bloom filter](https://github.com/barrust/bloom)
-* [kseq](https://github.com/lh3/readfq) - A fasta/fastq parser library
-* [utf-8](https://github.com/sheredom/utf8.h) - Single header UTF-8 string functions for C and C++
+Special thanks to **Tyler Barrus** ([barrust](https://github.com/barrust/)) for the following implementations:
+- [bloom filter](https://github.com/barrust/bloom)
+- [hashmap](https://github.com/barrust/hashmap)
+- [set](https://github.com/barrust/set)
+- [stringlib](https://github.com/barrust/c-utils)
+- [fileutils](https://github.com/barrust/c-utils)
+- [timing-c](https://github.com/barrust/c-utils)
+- And many others in this collection!
 
 
 ##### Unit tests
@@ -529,3 +520,173 @@ int main() {
 * **mu_assert_not_null(result)**: Assert that the passed `result` pointer is not `NULL`.
 * **mu_assert_pointers_eq(pointer1, pointer2)**: Assert that `pointer1` and `pointer2` point to the same memory location.
 * **mu_assert_pointers_not_eq(pointer1, pointer2)**: Assert that `pointer1` and `pointer2` do not point to the same memory location.
+
+## macros
+
+A collection of general utility macros for common tasks like array length, min/max, clamping, and bit manipulation.
+
+#### Usage
+```c
+#include "macros.h"
+
+int arr[10];
+size_t len = ARRAYLEN(arr); // 10
+
+int a = 5, b = 10;
+SWAP(int, a, b); // a=10, b=5
+
+uint32_t flags = 0;
+BIT_SET(flags, 3);
+if (BIT_TST(flags, 3)) {
+    // bit 3 is set
+}
+```
+
+## vec
+
+A macro-based dynamic array (vector) implementation that supports type-safe vectors of any type.
+
+#### Usage
+```c
+#include "vec.h"
+
+VEC_DECL(int_vec_t, int);
+int_vec_t v = {0};
+
+VEC_PUSH(v, 10);
+VEC_PUSH(v, 20);
+
+for (size_t i = 0; i < v.len; i++) {
+    printf("%d\n", VEC_GET(v, i));
+}
+
+VEC_FREE(v);
+```
+
+## arena
+
+A simple arena allocator for fast, contiguous memory allocation.
+
+#### Usage
+```c
+#include "arena.h"
+
+arena_t a = arena_new(1024 * 64); // 64KB arena
+void* p1 = arena_alloc(&a, 128);
+void* p2 = arena_alloc_zero(&a, 256);
+
+arena_stats(&a);
+arena_free(&a);
+```
+
+## hash
+
+A simple hash table implementation using FNV-1a hashing and open addressing.
+
+#### Usage
+```c
+#include "hash.h"
+
+hash_t h = hash_new(16);
+hash_set(&h, "key1", "value1");
+
+char* val = (char*)hash_get(&h, "key1");
+if (hash_has(&h, "key1")) {
+    printf("Found: %s\n", val);
+}
+
+hash_free(&h);
+```
+
+## result
+
+A simple result type for error handling, inspired by modern languages.
+
+#### Usage
+```c
+#include "result.h"
+
+result_t do_something(int val) {
+    if (val < 0) return result_err("Value cannot be negative: %d", val);
+    return result_ok();
+}
+
+result_t res = do_something(-1);
+if (!res.ok) {
+    printf("Error: %s\n", res.msg);
+}
+```
+
+## logger
+
+A simple logging utility supporting different log levels and file output.
+
+#### Usage
+```c
+#include "logger.h"
+
+log_init(LOG_DEBUG, "app.log");
+LOG_INFO("Application started");
+LOG_DEBUG("Variable x = %d", 42);
+LOG_ERROR("An error occurred!");
+log_close();
+```
+
+## set
+
+A generic set implementation.
+
+#### Usage
+```c
+#include "set.h"
+
+SimpleSet s;
+set_init(&s, 10);
+set_add(&s, "test");
+if (set_contains(&s, "test") == SET_TRUE) {
+    // set contains "test"
+}
+set_destroy(&s);
+```
+
+## hashmap
+
+A generic hashmap implementation.
+
+#### Usage
+```c
+#include "hashmap_barrust.h"
+
+hashmap_t hm = hashmap_init(10);
+hashmap_set(hm, "key", "value");
+char* val = (char*)hashmap_get(hm, "key");
+hashmap_destroy(hm);
+```
+
+## bloom filter
+
+A bloom filter implementation.
+
+#### Usage
+```c
+#include "bloom.h"
+
+BloomFilter bf;
+bloom_filter_init(&bf, 1000, 0.01);
+bloom_filter_add(&bf, "test");
+if (bloom_filter_check(&bf, "test") == BLOOM_SUCCESS) {
+    // potentially in set
+}
+bloom_filter_destroy(&bf);
+```
+
+## Credits
+
+Special thanks to **Tyler Barrus** ([barrust](https://github.com/barrust/)) for the following implementations:
+- [bloom filter](https://github.com/barrust/bloom)
+- [hashmap](https://github.com/barrust/hashmap)
+- [set](https://github.com/barrust/set)
+- [stringlib](https://github.com/barrust/c-utils)
+- [fileutils](https://github.com/barrust/c-utils)
+- [timing-c](https://github.com/barrust/c-utils)
+- And many others in this collection!

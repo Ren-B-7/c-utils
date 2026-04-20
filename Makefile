@@ -8,7 +8,7 @@ COMPFLAGS=-Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
 
 all: libraries examples test
 
-libraries: string bitarray fileutils linkedlist doublylinkedlist graph queue stack permutations
+libraries: string bitarray fileutils linkedlist doublylinkedlist graph queue stack permutations arena hash logger bloom hashmap set
 
 string:
 	$(CC) $(STD) -c $(SRCDIR)/stringlib.c -o $(LIBDIR)/string-lib.o $(CCFLAGS) $(COMPFLAGS)
@@ -36,6 +36,24 @@ graph:
 
 permutations:
 	$(CC) $(STD) -c $(SRCDIR)/permutations.c -o $(LIBDIR)/permutations-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+arena:
+	$(CC) $(STD) -c $(SRCDIR)/arena.c -o $(LIBDIR)/arena-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+hash:
+	$(CC) $(STD) -c $(SRCDIR)/hash.c -o $(LIBDIR)/hash-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+logger:
+	$(CC) $(STD) -c $(SRCDIR)/logger.c -o $(LIBDIR)/logger-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+bloom:
+	$(CC) $(STD) -c $(SRCDIR)/bloom.c -o $(LIBDIR)/bloom-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+hashmap:
+	$(CC) $(STD) -c $(SRCDIR)/hashmap_barrust.c -o $(LIBDIR)/hashmap-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+set:
+	$(CC) $(STD) -c $(SRCDIR)/set.c -o $(LIBDIR)/set-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 debug: CCFLAGS += -g
 debug: all
@@ -68,6 +86,7 @@ examples: libraries
 	$(CC) $(STD) $(LIBDIR)/stack-lib.o $(EXAMPLEDIR)/stack_example.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/ex_stack
 	$(CC) $(STD) $(LIBDIR)/graph-lib.o $(EXAMPLEDIR)/graph_example.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/ex_graph
 	$(CC) $(STD) $(LIBDIR)/permutations-lib.o $(EXAMPLEDIR)/permutations_example.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/ex_permutations
+	$(CC) $(STD) $(LIBDIR)/arena-lib.o $(LIBDIR)/hash-lib.o $(LIBDIR)/logger-lib.o $(EXAMPLEDIR)/cutils_improved_example.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/ex_cutils_improved
 
 runtests:
 	@ if [ -f "$(CURDIR)/$(DISTDIR)/fileutils" ]; then $(CURDIR)/$(DISTDIR)/fileutils; fi
@@ -96,6 +115,12 @@ windows-libraries:
 	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/queue.c -o $(LIBDIR)/queue-lib.o $(CCFLAGS) $(COMPFLAGS)
 	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/stack.c -o $(LIBDIR)/stack-lib.o $(CCFLAGS) $(COMPFLAGS)
 	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/permutations.c -o $(LIBDIR)/permutations-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/arena.c -o $(LIBDIR)/arena-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/hash.c -o $(LIBDIR)/hash-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/logger.c -o $(LIBDIR)/logger-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/bloom.c -o $(LIBDIR)/bloom-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/hashmap_barrust.c -o $(LIBDIR)/hashmap-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/set.c -o $(LIBDIR)/set-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 windows-test: windows-libraries
 	$(CC) $(STD) -D_WIN32 $(LIBDIR)/string-lib.o $(TESTDIR)/stringlib_test.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/strlib.exe
@@ -121,6 +146,7 @@ windows-examples: windows-libraries
 	$(CC) $(STD) -D_WIN32 $(LIBDIR)/stack-lib.o $(EXAMPLEDIR)/stack_example.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/ex_stack.exe
 	$(CC) $(STD) -D_WIN32 $(LIBDIR)/graph-lib.o $(EXAMPLEDIR)/graph_example.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/ex_graph.exe
 	$(CC) $(STD) -D_WIN32 $(LIBDIR)/permutations-lib.o $(EXAMPLEDIR)/permutations_example.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/ex_permutations.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/arena-lib.o $(LIBDIR)/hash-lib.o $(LIBDIR)/logger-lib.o $(EXAMPLEDIR)/cutils_improved_example.c $(CCFLAGS) $(COMPFLAGS) -o $(CURDIR)/$(DISTDIR)/ex_cutils_improved.exe
 
 windows-runtests:
 	@ if [ -f "$(CURDIR)/$(DISTDIR)/fileutils.exe" ]; then $(CURDIR)/$(DISTDIR)/fileutils.exe; fi
