@@ -29,8 +29,7 @@ create_person(int id, const char* name, int age, char gender, int height)
 {
 	person_t* p = (person_t*) malloc(sizeof(person_t));
 	if (!p) {
-		fprintf(stderr, "Error: Memory allocation failed for person.
-");
+		fprintf(stderr, "Error: Memory allocation failed for person.\n");
 		return NULL;
 	}
 	p->id = id;
@@ -61,12 +60,10 @@ bool find_person_by_name(void* data, void* key)
 // Function to test basic dllist operations
 void test_dllist_basic_operations()
 {
-	printf("--- Doubly Linked List Operations Example ---
-");
+	printf("--- Doubly Linked List Operations Example ---\n");
 	dllist_t l = dll_init();
 	assert(l != NULL);
-	printf("Doubly linked list initialized.
-");
+	printf("Doubly linked list initialized.\n");
 
 	// Test insertion at the end
 	person_t* p1 = create_person(1, "Alice", 30, 'f', 5);
@@ -77,12 +74,10 @@ void test_dllist_basic_operations()
 	assert(dll_insert(l, p2, -1) == DLL_SUCCESS);
 	assert(dll_insert(l, p3, -1) == DLL_SUCCESS);
 	assert(dll_num_elements(l) == 3);
-	printf("Inserted 3 persons: Alice, Bob, Charlie.
-");
+	printf("Inserted 3 persons: Alice, Bob, Charlie.\n");
 
 	// Test traversal and retrieval
-	printf("Traversing list forward:
-");
+	printf("Traversing list forward:\n");
 	dll_node* node;
 	int count = 0;
 	dll_traverse(l, node)
@@ -92,26 +87,22 @@ void test_dllist_basic_operations()
 		if (count == 0) {
 			assert(strcmp(current_person->name, "Alice") == 0 &&
 			 current_person->id == 1);
-			printf("  - %d: %s (Age: %d)
-", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
 		} else if (count == 1) {
 			assert(strcmp(current_person->name, "Bob") == 0 &&
 			 current_person->id == 2);
-			printf("  - %d: %s (Age: %d)
-", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
 		} else if (count == 2) {
 			assert(strcmp(current_person->name, "Charlie") == 0 &&
 			 current_person->id == 3);
-			printf("  - %d: %s (Age: %d)
-", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
 		}
 		count++;
 	}
 	assert(count == 3);
 
 	// Test reverse traversal
-	printf("Traversing list backward:
-");
+	printf("Traversing list backward:\n");
 	count = 0;
 	dll_reverse_traverse(l, node)
 	{
@@ -120,18 +111,15 @@ void test_dllist_basic_operations()
 		if (count == 0) {
 			assert(strcmp(current_person->name, "Charlie") == 0 &&
 			 current_person->id == 3);
-			printf("  - %d: %s (Age: %d)
-", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
 		} else if (count == 1) {
 			assert(strcmp(current_person->name, "Bob") == 0 &&
 			 current_person->id == 2);
-			printf("  - %d: %s (Age: %d)
-", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
 		} else if (count == 2) {
 			assert(strcmp(current_person->name, "Alice") == 0 &&
 			 current_person->id == 1);
-			printf("  - %d: %s (Age: %d)
-", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
 		}
 		count++;
 	}
@@ -142,60 +130,51 @@ void test_dllist_basic_operations()
 	dll_node* found_node_id = dll_search(l, &search_id_bob, find_person_by_id);
 	assert(found_node_id != NULL);
 	assert(((person_t*) found_node_id->data)->id == 2);
-	printf("Found Bob by ID %d.
-", search_id_bob);
+	printf("Found Bob by ID %d.\n", search_id_bob);
 
 	// Test dll_search by Name
 	char* search_name_charlie = "Charlie";
 	dll_node* found_node_name = dll_search(l, search_name_charlie, find_person_by_name);
 	assert(found_node_name != NULL);
 	assert(strcmp(((person_t*) found_node_name->data)->name, "Charlie") == 0);
-	printf("Found Charlie by name "%s".
-", search_name_charlie);
+	printf("Found Charlie by name \"%s\".\n", search_name_charlie);
 
 	// Test searching for a non-existent element
 	int search_id_nonexistent = 99;
 	assert(dll_search(l, &search_id_nonexistent, find_person_by_id) == NULL);
 	char* search_name_nonexistent = "David";
 	assert(dll_search(l, search_name_nonexistent, find_person_by_name) == NULL);
-	printf("Verified non-existent entries not found.
-");
+	printf("Verified non-existent entries not found.\n");
 
 	// Test removal from the beginning
 	person_t* removed_p1 = (person_t*) dll_remove(l, 0);
 	assert(removed_p1 != NULL && removed_p1->id == 1 && strcmp(removed_p1->name, "Alice") == 0);
 	assert(dll_num_elements(l) == 2);
-	printf("Removed Alice (ID: %d) from the beginning.
-", removed_p1->id);
+	printf("Removed Alice (ID: %d) from the beginning.\n", removed_p1->id);
 	free(removed_p1); // Free the data
 
 	// Test removal from the end
 	person_t* removed_p3 = (person_t*) dll_remove(l, -1); // -1 for end
 	assert(removed_p3 != NULL && removed_p3->id == 3 && strcmp(removed_p3->name, "Charlie") == 0);
 	assert(dll_num_elements(l) == 1);
-	printf("Removed Charlie (ID: %d) from the end.
-", removed_p3->id);
+	printf("Removed Charlie (ID: %d) from the end.\n", removed_p3->id);
 	free(removed_p3);
 
 	// Test removal from middle (Bob is now at index 0)
 	person_t* removed_p2 = (person_t*) dll_remove(l, 0);
 	assert(removed_p2 != NULL && removed_p2->id == 2 && strcmp(removed_p2->name, "Bob") == 0);
 	assert(dll_num_elements(l) == 0);
-	printf("Removed Bob (ID: %d) from the middle.
-", removed_p2->id);
+	printf("Removed Bob (ID: %d) from the middle.\n", removed_p2->id);
 	free(removed_p2);
 
 	// Test removing from an empty list
 	assert(dll_remove(l, 0) == NULL);
-	printf("Verified removing from empty list returns NULL.
-");
+	printf("Verified removing from empty list returns NULL.\n");
 
 	// Free the list structure itself (nodes are freed, but not the data pointers)
 	dll_free(l);
-	printf("Doubly linked list structure freed.
-");
-	printf("--- Doubly Linked List Operations Example Finished ---
-");
+	printf("Doubly linked list structure freed.\n");
+	printf("--- Doubly Linked List Operations Example Finished ---\n");
 }
 
 int main()

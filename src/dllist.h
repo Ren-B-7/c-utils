@@ -33,6 +33,7 @@
 *******************************************************************************/
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,6 +84,13 @@ extern "C" {
 	/*  Remove a node that at the position `idx` */
 	void* dll_remove(dllist_t l, int idx);
 	void dll_remove_alt(dllist_t l, size_t idx, bool free_data);
+
+	/*  Search for a node using a callback function
+	    Returns:
+	        NULL        - If not found
+	        dll_node*   - If found
+	*/
+	dll_node* dll_search(dllist_t l, void* key, bool (*callback)(void*, void*));
 
 /*  Traverse the list easily using the following macros */
 #define dll_traverse(l, node) \

@@ -33,6 +33,9 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+#include <stddef.h>
+
 	typedef struct __graph* graph_t;
 	typedef struct __vertex_node* vertex_t;
 	typedef struct __edge_node* edge_t;

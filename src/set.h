@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
 #include <inttypes.h> /* uint64_t */
 
 /* https://gcc.gnu.org/onlinedocs/gcc/Alternate-Keywords.html#Alternate-Keywords

@@ -48,6 +48,18 @@ void dll_free_alt(dllist_t l, bool free_data)
 	free(l);
 }
 
+dll_node* dll_search(dllist_t l, void* key, bool (*callback)(void*, void*))
+{
+	dll_node* n;
+	dll_traverse(l, n)
+	{
+		if (callback(n->data, key) == true) {
+			return n;
+		}
+	}
+	return NULL;
+}
+
 size_t dll_num_elements(dllist_t l)
 {
 	return l->elms;

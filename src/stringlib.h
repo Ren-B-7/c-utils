@@ -25,6 +25,8 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
+
 #define CASE_SENSITIVE 1
 #define CASE_INSENSITIVE 0
 

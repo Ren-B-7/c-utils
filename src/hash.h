@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
 #include <inttypes.h> /* PRIu64 */
 
 #ifdef __APPLE__

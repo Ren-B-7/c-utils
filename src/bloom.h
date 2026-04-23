@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
 #include <inttypes.h> /* PRIu64 */
 
 /* https://gcc.gnu.org/onlinedocs/gcc/Alternate-Keywords.html#Alternate-Keywords

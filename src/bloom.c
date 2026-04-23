@@ -539,7 +539,7 @@ __read_from_file(BloomFilter* bf, FILE* fp, short on_disk, const char* filename)
 		bf->__filesize = buf.st_size;
 		bf->bloom = (unsigned char*) mmap((caddr_t) 0, bf->__filesize,
 		 PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-		if (bf->bloom == (unsigned char*) -1) {
+		if (bf->bloom == MAP_FAILED) {
 			perror("mmap: ");
 			exit(1);
 		}

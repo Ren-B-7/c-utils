@@ -28,6 +28,8 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
+
 #define BIT_SET 1
 #define BIT_NOT_SET 0
 #define BITARRAY_INDEX_ERROR -1

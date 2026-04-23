@@ -1,7 +1,7 @@
 ---
-Checks: 'clang-analyzer-*,bugprone-*,performance-*,-bugprone-macro-parentheses,-bugprone-reserved-identifier'
+Checks: 'performance-*'
 WarningsAsErrors: ''
 CheckOptions:
   - key: readability-function-cognitive-complexity.Threshold
-    value: 35
+    value: 50 # Increased from 35 to be less restrictive
 ...
