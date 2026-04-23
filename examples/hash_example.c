@@ -1,85 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "hash.h"
-#include "minunit.h"
+#include "../src/hash.h"
+#include "../src/stringlib.h"
 
-/* --- Hash Example --- */
+int main()
+{
+	HashMap h;
+	if (hashmap_init(&h) == HASHMAP_FAILURE) {
+		fprintf(stderr, "Failed to initialize hashmap.\n");
+		return 1;
+	}
 
-// A simple example to demonstrate hash table functionality.
-// This example creates a hash table, inserts key-value pairs,
-// retrieves values, and demonstrates deletion.
+	printf("Hashmap initialized.\n");
+	printf("\n");
 
-char *test_hash_insert_and_get() {
-    hash_table_t *ht = hash_create(10); // Create a hash table with capacity 10
-    mu_assert("hash_create failed", ht != NULL);
+	printf("Setting key-value pairs...\n");
+	printf("\n");
+	hashmap_set_int(&h, "apple", 10);
+	hashmap_set_int(&h, "banana", 25);
+	hashmap_set_int(&h, "cherry", 5);
+	hashmap_set_int(&h, "date", 15);
+	hashmap_set_int(&h, "elderberry", 30);
 
-    // Insert key-value pairs
-    hash_insert(ht, "apple", "red");
-    hash_insert(ht, "banana", "yellow");
-    hash_insert(ht, "grape", "purple");
+	printf("\nRetrieving values:\n");
+	int *val_apple = (int*)hashmap_get(&h, "apple");
+	if (val_apple) {
+		printf("Value for 'apple': %d\n", *val_apple);
+	} else {
+		printf("'apple' not found.\n");
+	}
 
-    // Retrieve values
-    mu_assert("hash_get failed for 'apple'", strcmp(hash_get(ht, "apple"), "red") == 0);
-    mu_assert("hash_get failed for 'banana'", strcmp(hash_get(ht, "banana"), "yellow") == 0);
-    mu_assert("hash_get failed for 'grape'", strcmp(hash_get(ht, "grape"), "purple") == 0);
-    mu_assert("hash_get returned non-null for non-existent key", hash_get(ht, "orange") == NULL);
+	int *val_banana = (int*)hashmap_get(&h, "banana");
+	if (val_banana) {
+		printf("Value for 'banana': %d\n", *val_banana);
+	} else {
+		printf("'banana' not found.\n");
+	}
 
-    // Test updating a value
-    hash_insert(ht, "apple", "green"); // Update value for "apple"
-    mu_assert("hash_update failed", strcmp(hash_get(ht, "apple"), "green") == 0);
+	// Try to get a non-existent key
+	int *val_grape = (int*)hashmap_get(&h, "grape");
+	if (val_grape) {
+		printf("Value for 'grape': %d\n", *val_grape);
+	} else {
+		printf("'grape' not found.\n");
+	}
 
-    hash_destroy(ht); // Clean up
-    return NULL;
-}
+	// Remove an entry
+	printf("\nRemoving 'cherry'...\n");
+	void* removed_val = hashmap_remove(&h, "cherry");
+	if (removed_val) {
+		printf("Removed 'cherry'. Value was: %d\n", *(int*)removed_val);
+		free(removed_val); // Free the memory for the removed value
+	} else {
+		printf("'cherry' not found for removal.\n");
+	}
 
-char *test_hash_delete() {
-    hash_table_t *ht = hash_create(5);
-    mu_assert("hash_create failed", ht != NULL);
+	// Verify removal
+	int* val_cherry = (int*)hashmap_get(&h, "cherry");
+	if (val_cherry) {
+		printf("Value for 'cherry' after removal: %d\n", *val_cherry);
+	} else {
+		printf("'cherry' not found after removal.\n");
+	}
 
-    hash_insert(ht, "key1", "value1");
-    hash_insert(ht, "key2", "value2");
+	// Print hashmap statistics
+	printf("\nHashmap stats:\n");
+	hashmap_stats(&h);
 
-    mu_assert("hash_get failed before delete", hash_get(ht, "key1") != NULL);
+	// Destroy the hashmap and free all allocated memory
+	hashmap_destroy(&h);
+	printf("\nHashmap destroyed.\n");
 
-    hash_delete(ht, "key1"); // Delete an entry
-
-    mu_assert("hash_get still found deleted key", hash_get(ht, "key1") == NULL);
-    mu_assert("hash_get failed for existing key after delete", strcmp(hash_get(ht, "key2"), "value2") == 0);
-
-    hash_destroy(ht);
-    return NULL;
-}
-
-char *test_hash_resize() {
-    hash_table_t *ht = hash_create(2); // Small initial capacity to force resize
-    mu_assert("hash_create failed", ht != NULL);
-
-    // Insert enough elements to trigger a resize
-    hash_insert(ht, "a", "1");
-    hash_insert(ht, "b", "2");
-    hash_insert(ht, "c", "3"); // Should trigger resize
-    hash_insert(ht, "d", "4");
-    hash_insert(ht, "e", "5");
-
-    // Check if elements are still retrievable after resize
-    mu_assert("hash_get failed after resize for 'a'", strcmp(hash_get(ht, "a"), "1") == 0);
-    mu_assert("hash_get failed after resize for 'c'", strcmp(hash_get(ht, "c"), "3") == 0);
-    mu_assert("hash_get failed after resize for 'e'", strcmp(hash_get(ht, "e"), "5") == 0);
-
-    hash_destroy(ht);
-    return NULL;
-}
-
-// Minunit runner for hash tests
-char *(*all_tests[])() = {
-    test_hash_insert_and_get,
-    test_hash_delete,
-    test_hash_resize,
-    NULL
-};
-
-int main() {
-    return run_all_tests(all_tests);
+	return 0;
 }

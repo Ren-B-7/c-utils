@@ -1,64 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h> // For demonstration purposes, though not strictly needed by logger API itself
 
-#include "logger.h"
-#include "minunit.h"
+#include "../src/logger.h" // Include the logger header
 
 /* --- Logger Example --- */
+// This example demonstrates the usage of the logger library.
+// It shows how to initialize the logger with different levels,
+// log messages at various levels, and how filtering works.
 
-// This example demonstrates the basic usage of the logger.
-// It shows how to set the log level and output messages at different levels.
+int main()
+{
+	printf("--- Logger Example ---\n");
 
-char *test_logger_levels() {
-    // Default log level is LOG_INFO.
-    // Messages with level below LOG_INFO will not be displayed.
+	// 1. Initialize logger to stderr with DEBUG level
+	printf("Initializing logger to stderr with LOG_DEBUG level...\n");
 
-    log_info("This is an informational message."); // Should be displayed
-    log_warn("This is a warning message.");     // Should be displayed
-    log_error("This is an error message.");     // Should be displayed
-    log_debug("This is a debug message.");     // Should NOT be displayed
+	log_init(LOG_DEBUG, NULL); // NULL filepath means log only to stderr
 
-    // Change log level to LOG_DEBUG
-    set_log_level(LOG_DEBUG);
-    log_debug("This is now a debug message (level changed)."); // Should be displayed
+	printf("Logging messages at LOG_DEBUG level:\n");
 
-    // Change log level back to LOG_INFO for subsequent tests
-    set_log_level(LOG_INFO);
+	LOG_DEBUG("This is a debug message.");
+	LOG_INFO("This is an info message.");
+	LOG_WARN("This is a warning message.");
+	LOG_ERROR("This is an error message.");
 
-    return NULL;
-}
+	printf("----------------------\n");
 
-char *test_logger_custom_output() {
-    // You can redirect log output to a file.
-    // For this example, we'll just demonstrate it conceptually.
-    // In a real test, you'd capture stdout/stderr or redirect to a file.
+	printf("Re-initializing logger to stderr with LOG_INFO level...\n");
 
-    FILE *log_file = fopen("test_log.txt", "w");
-    if (log_file == NULL) {
-        // In a real test, this would be an error. For this example, we'll just note it.
-        fprintf(stderr, "Warning: Could not open test_log.txt for writing.
-");
-        return NULL; // Skip this part of the test if file cannot be opened.
-    }
+	log_init(LOG_INFO, NULL); // Set level to INFO, debug messages should be
+	                          // filtered out
 
-    set_log_output(log_file); // Redirect output
+	printf("Logging messages at LOG_INFO level (debug should be filtered):\n");
+	LOG_DEBUG("This is a debug message (should NOT appear).");
+	LOG_INFO("This is an info message.");
+	LOG_WARN("This is a warning message.");
+	LOG_ERROR("This is an error message.");
 
-    log_info("This message should go to the file.");
+	printf("----------------------\n");
 
-    set_log_output(stdout); // Reset output to stdout
-    fclose(log_file);
-    remove("test_log.txt"); // Clean up the test file
+	const char* log_filepath = "logger_example.log";
+	printf("Initializing logger to stderr AND file '%s' with LOG_WARN "
+	       "level...\n",
+	 log_filepath);
 
-    return NULL;
-}
+	log_init(LOG_WARN, log_filepath); // Set level to WARN, log to stderr and
+	                                  // file
+	printf("Logging messages at LOG_WARN level (debug, info should be "
+	       "filtered):\n");
 
-// Minunit runner for logger tests
-char *(*all_tests[])() = {
-    test_logger_levels,
-    test_logger_custom_output,
-    NULL
-};
+	LOG_DEBUG("This is a debug message (should NOT appear).");
+	LOG_INFO("This is an info message (should NOT appear).");
+	LOG_WARN("This is a warning message.");
+	LOG_ERROR("This is an error message.");
 
-int main() {
-    return run_all_tests(all_tests);
+	printf("----------------------\n");
+	// Close the log file
+
+	printf("Closing logger file...\n");
+	log_close();
+
+	printf("Logger file closed.\n");
+
+	printf("\n--- Logger Example Finished ---\n");
+	// Note: On successful run, logger_example.log should contain WARN and
+	// ERROR messages.
+	return 0;
 }

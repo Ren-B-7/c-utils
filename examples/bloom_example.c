@@ -1,83 +1,53 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-#include "bloom.h"
-#include "minunit.h"
+#include "../src/bloom.h"
 
-/* --- Bloom Filter Example --- */
+int main(void)
+{
+	BloomFilter bf;
 
-// This example demonstrates the Bloom filter.
-// It shows how to create a Bloom filter, add elements,
-// and check for their potential presence.
+	/* Initialize bloom filter
+	   - estimated elements: 1000
+	   - false positive rate: 1% (0.01)
+	*/
+	if (bloom_filter_init(&bf, 1000, 0.01) != BLOOM_SUCCESS) {
+		fprintf(stderr, "Failed to initialize bloom filter\n");
+		return 1;
+	}
 
-char *test_bloom_add_and_check() {
-    // Create a Bloom filter with a capacity for 1000 elements and a false positive rate of 0.1%
-    bloom_t *bloom = bloom_create(1000, 0.001);
-    mu_assert("bloom_create failed", bloom != NULL);
+	/* Add some strings */
+	bloom_filter_add_string(&bf, "hello");
+	bloom_filter_add_string(&bf, "world");
+	bloom_filter_add_string(&bf, "bloom");
+	bloom_filter_add_string(&bf, "filter");
 
-    // Add elements to the filter
-    char *item1 = "apple";
-    char *item2 = "banana";
-    char *item3 = "grape";
+	/* Check membership */
+	const char* tests[] = {"hello", "world", "foo", "bar", "bloom", NULL};
 
-    bloom_add(bloom, item1);
-    bloom_add(bloom, item2);
-    bloom_add(bloom, item3);
+	for (int i = 0; tests[i] != NULL; i++) {
+		int exists = bloom_filter_check_string(&bf, tests[i]);
 
-    // Check for presence of elements that were added
-    mu_assert("bloom_check failed for 'apple'", bloom_check(bloom, item1) == true);
-    mu_assert("bloom_check failed for 'banana'", bloom_check(bloom, item2) == true);
-    mu_assert("bloom_check failed for 'grape'", bloom_check(bloom, item3) == true);
+		if (exists) {
+			printf("'%s' is possibly in the set\n", tests[i]);
+		} else {
+			printf("'%s' is definitely NOT in the set\n", tests[i]);
+		}
+	}
 
-    // Check for presence of an element that was NOT added
-    char *item4 = "orange";
-    // Note: Bloom filters can have false positives, so this might occasionally return true,
-    // but it should ideally be false for distinct, non-added items.
-    mu_assert("bloom_check returned true for non-existent item (potential false positive)", bloom_check(bloom, item4) == false); // This is the ideal case
+	/* Print stats */
+	printf("\n--- Bloom Filter Stats ---\n");
+	bloom_filter_stats(&bf);
 
-    bloom_destroy(bloom); // Clean up
-    return NULL;
-}
+	printf("Current false positive rate: %f\n",
+	 bloom_filter_current_false_positive_rate(&bf));
 
-char *test_bloom_false_positive_scenario() {
-    // This test is designed to illustrate a potential false positive.
-    // It's not guaranteed to produce one in a single run due to hash function randomness.
+	printf("Elements added: %lu\n", bf.elements_added);
 
-    // Create a small Bloom filter to increase the chance of false positives
-    bloom_t *bloom = bloom_create(10, 0.1); // Small capacity, higher FP rate
-    mu_assert("bloom_create failed", bloom != NULL);
+	/* Clean up */
+	if (bloom_filter_destroy(&bf) != BLOOM_SUCCESS) {
+		fprintf(stderr, "Failed to destroy bloom filter\n");
+		return 1;
+	}
 
-    char *added_item = "test_item";
-    bloom_add(bloom, added_item);
-
-    // Check for an item that is similar or could collide through hashing
-    // Finding a guaranteed false positive requires specific knowledge of hash functions
-    // and is hard to demonstrate deterministically in a simple example.
-    // We'll use a different string and check.
-    char *potentially_colliding_item = "another_test";
-
-    printf("Checking for '%s' (added: '%s')
-", potentially_colliding_item, added_item);
-
-    // The result of bloom_check for potentially_colliding_item is not strictly guaranteed.
-    // If it returns true, it's a false positive. If false, it's correct.
-    // We cannot assert a specific outcome here without knowing the hash functions.
-    bool check_result = bloom_check(bloom, potentially_colliding_item);
-    printf("Result for '%s': %s
-", potentially_colliding_item, check_result ? "true (potential false positive)" : "false");
-
-    bloom_destroy(bloom);
-    return NULL;
-}
-
-// Minunit runner for bloom filter tests
-char *(*all_tests[])() = {
-    test_bloom_add_and_check,
-    test_bloom_false_positive_scenario,
-    NULL
-};
-
-int main() {
-    return run_all_tests(all_tests);
+	return 0;
 }

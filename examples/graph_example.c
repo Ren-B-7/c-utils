@@ -1,123 +1,150 @@
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+#include <assert.h>
+#include "../src/graph.h"
 
-#include "graph.h"
-#include "minunit.h"
 
-/* --- Graph Example --- */
+typedef struct city {
+    char* name;
+    double latitude;
+    double longitude;
+} city;
 
-// This example demonstrates the graph data structure.
-// It shows how to create a graph, add vertices and edges,
-// and perform basic traversals like BFS.
+typedef struct highway {
+    int miles;
+} highway;
 
-// Define a simple data structure to store in graph nodes
-typedef struct node_data {
-    int id;
-    char name[50];
-} node_data_t;
 
-// Callback for comparing node data (e.g., by ID)
-bool compare_node_data(void *data1, void *data2) {
-    node_data_t *nd1 = (node_data_t *)data1;
-    node_data_t *nd2 = (node_data_t *)data2;
-    return nd1 != NULL && nd2 != NULL && nd1->id == nd2->id;
-}
+/* Private Functions */
+static void     __add_city_as_vertex(graph_t g, char* name, double latitude, double longitude);  /* we get to always make N and W.*/
+static void     __print_city(city* c);
+static void     __free_city(city* c);
+static void     __add_highway_as_edge(graph_t g, int src, int dest, int miles);
+static char*    __str_duplicate(const char* s);
 
-// Callback for printing node data (for BFS/DFS visualization)
-void print_node_data(void *data) {
-    node_data_t *nd = (node_data_t *)data;
-    if (nd) {
-        printf("ID: %d, Name: %s", nd->id, nd->name);
+unsigned int*   __breadth_first_search(graph_t g, vertex_t start);
+
+
+
+int main(int argc, char const *argv[]) {
+    bool verbose = false;
+
+    if (argc == 2 && strcmp(argv[1], "-v") == 0) {
+        verbose = true;
     }
+
+    graph_t g = g_init();
+    vertex_t v;
+    unsigned int i;
+
+    /* add the vertices */
+    __add_city_as_vertex(g, (char*)"New York", 40.7128, 74.0060);
+    __add_city_as_vertex(g, (char*)"Washington D.C.", 38.9072, 77.0369);
+    __add_city_as_vertex(g, (char*)"Cleveland", 41.4993, 81.6944);
+    __add_city_as_vertex(g, (char*)"Detroit", 42.3314, 83.0458);
+    __add_city_as_vertex(g, (char*)"Atlanta", 33.7490, 84.3880);
+    __add_city_as_vertex(g, (char*)"St. Louis", 38.6270, 90.1994);
+    __add_city_as_vertex(g, (char*)"Dallas", 32.7767, 96.7970);
+    __add_city_as_vertex(g, (char*)"Salt Lake", 40.7608, 111.8910);
+    __add_city_as_vertex(g, (char*)"Pheonix", 33.4484, 112.0740);
+    __add_city_as_vertex(g, (char*)"Las Vegas", 36.1699, 115.1398);
+    __add_city_as_vertex(g, (char*)"Los Angeles", 34.0522, 118.2437);
+    __add_city_as_vertex(g, (char*)"San Fransisco", 37.7749, 122.4194);
+
+    /* add edges between the vertices */
+    __add_highway_as_edge(g, 0, 1, 227);    /* NY - DC */
+    __add_highway_as_edge(g, 1, 0, 227);    /* DC - NY */
+    __add_highway_as_edge(g, 1, 2, 371);    /* DC - Cleveland */
+    __add_highway_as_edge(g, 1, 4, 639);    /* DC - Atlanta */
+    __add_highway_as_edge(g, 4, 1, 639);    /* Atlanta - DC */
+    __add_highway_as_edge(g, 2, 3, 168);    /* Cleveland - Detroit */
+    __add_highway_as_edge(g, 2, 4, 557);    /* Cleveland - St. Louis */
+    __add_highway_as_edge(g, 4, 5, 630);    /* St. Louis - Dallas */
+    __add_highway_as_edge(g, 5, 7, 1064);   /* Dallas - Pheonix */
+    __add_highway_as_edge(g, 7, 8, 300);    /* Pheonix - LV */
+    __add_highway_as_edge(g, 7, 9, 372);    /* Pheonix - LA */
+    __add_highway_as_edge(g, 9, 7, 372);    /* LA - Pheonix */
+    __add_highway_as_edge(g, 9, 10, 381);   /* LA - SF */
+    __add_highway_as_edge(g, 8, 6, 420);    /* LV - SLC */
+    __add_highway_as_edge(g, 6, 10, 735);   /* SLC - SF */
+
+    printf("Breadth First Traverse; starting at New York: \n");
+    unsigned int size, len;
+    unsigned int* bfs = g_breadth_first_traverse(g, g_vertex_get(g, 0), &size);
+    unsigned int* dfs = g_depth_first_traverse(g, g_vertex_get(g, 0), &len);
+    printf("Size: %u\n", size);
+    for (i = 0; i < size; i++) {
+        printf("%d, ", bfs[i]);
+    }
+    printf("\n\n\n");
+
+    printf("Depth First Traverse: starting from New York: \n");
+    printf("Size: %u\n", len);
+    for (i = 0; i < size; i++) {
+        printf("%d, ", dfs[i]);
+    }
+    printf("\n\n\n");
+
+    for (i = 0; i < size; i++) {
+        v = g_vertex_get(g, bfs[i]);
+        city* c = (city*)g_vertex_metadata(v);
+        __print_city(c);
+    }
+
+    /* free things */
+    g_iterate_vertices(g, v, i) {
+        city* c = (city*)g_vertex_metadata(v);
+        /*__print_city(c); */
+        __free_city(c);
+        g_vertex_metadata_update(v, NULL);
+    }
+    g_free(g);
+    free(bfs);
+    free(dfs);
+
+    if (verbose == true)
+        printf("Completed!\n");
+
+    return 0;
 }
 
-// Callback for freeing node data
-void free_node_data(void *data) {
-    free(data);
+
+/* PRIVATE FUNCTIONS */
+static void __add_city_as_vertex(graph_t g, char* name, double latitude, double longitude) {
+    city* c = (city*)calloc(1, sizeof(city));
+
+    c->name = __str_duplicate(name);
+    c->latitude = latitude;
+    c->longitude = longitude;
+    g_vertex_add(g, c);
 }
 
-char *test_graph_vertex_edge_operations() {
-    // Create a graph
-    graph_t *g = graph_create(compare_node_data, print_node_data, free_node_data);
-    mu_assert("graph_create failed", g != NULL);
-
-    // Add vertices
-    node_data_t *data1 = (node_data_t *)malloc(sizeof(node_data_t));
-    data1->id = 1; strcpy(data1->name, "Node A");
-    node_t *v1 = graph_add_vertex(g, data1);
-    mu_assert("graph_add_vertex failed for v1", v1 != NULL);
-
-    node_data_t *data2 = (node_data_t *)malloc(sizeof(node_data_t));
-    data2->id = 2; strcpy(data2->name, "Node B");
-    node_t *v2 = graph_add_vertex(g, data2);
-    mu_assert("graph_add_vertex failed for v2", v2 != NULL);
-
-    node_data_t *data3 = (node_data_t *)malloc(sizeof(node_data_t));
-    data3->id = 3; strcpy(data3->name, "Node C");
-    node_t *v3 = graph_add_vertex(g, data3);
-    mu_assert("graph_add_vertex failed for v3", v3 != NULL);
-
-    // Add edges (directed graph assumed, adjust if undirected)
-    // Edge from v1 to v2
-    mu_assert("graph_add_edge failed v1->v2", graph_add_edge(g, v1, v2) == SUCCESS);
-    // Edge from v1 to v3
-    mu_assert("graph_add_edge failed v1->v3", graph_add_edge(g, v1, v3) == SUCCESS);
-    // Edge from v2 to v3
-    mu_assert("graph_add_edge failed v2->v3", graph_add_edge(g, v2, v3) == SUCCESS);
-
-    // Check graph properties
-    mu_assert("graph_num_vertices incorrect", graph_num_vertices(g) == 3);
-    mu_assert("graph_num_edges incorrect", graph_num_edges(g) == 3);
-
-    // Find a vertex
-    node_data_t search_data = {2, ""}; // Search by ID
-    node_t *found_v = graph_find_vertex(g, &search_data);
-    mu_assert("graph_find_vertex failed", found_v != NULL);
-    mu_assert("graph_find_vertex returned wrong vertex", ((node_data_t *)graph_vertex_data(found_v))->id == 2);
-
-    // Test removing a vertex (should also remove incident edges)
-    graph_remove_vertex(g, v1);
-    mu_assert("graph_num_vertices incorrect after removing v1", graph_num_vertices(g) == 2);
-    mu_assert("graph_num_edges incorrect after removing v1", graph_num_edges(g) == 1); // v2->v3 remains
-    mu_assert("graph_find_vertex still found removed v1", graph_find_vertex(g, data1) == NULL);
-
-
-    // Re-add v1 to test BFS
-    node_data_t *data1_readd = (node_data_t *)malloc(sizeof(node_data_t));
-    data1_readd->id = 1; strcpy(data1_readd->name, "Node A Readded");
-    v1 = graph_add_vertex(g, data1_readd);
-    graph_add_edge(g, v1, v2); // v1 -> v2
-    graph_add_edge(g, v1, v3); // v1 -> v3
-    graph_add_edge(g, v2, v3); // v2 -> v3
-
-    // Test BFS traversal starting from v1
-    printf("
---- BFS Traversal from Node A (ID 1) ---
-");
-    // BFS typically prints or collects visited nodes.
-    // For this test, we'll check if the count is correct.
-    // A more robust test would capture printed output or check a returned list.
-    int visited_count = 0;
-    void **visited_nodes = graph_bfs(g, v1, &visited_count); // Assuming BFS returns an array of visited node data pointers
-    mu_assert("graph_bfs failed", visited_nodes != NULL);
-    mu_assert("BFS visited count incorrect", visited_count == 3); // Should visit v1, v2, v3
-
-    // Free visited nodes array (if graph_bfs allocates it)
-    // This depends on graph.c implementation. Assuming it needs freeing.
-    free(visited_nodes);
-
-
-    graph_destroy(g); // Clean up
-    return NULL;
+static void __print_city(city* c) {
+    printf("City Name: %s\tLatitude: %f°N\tLongitude: %f°W\n", c->name, c->latitude, c->longitude);
 }
 
-// Minunit runner for graph tests
-char *(*all_tests[])() = {
-    test_graph_vertex_edge_operations,
-    NULL
-};
+static void __free_city(city* c) {
+    free(c->name);
+    c->latitude = 0.0;
+    c->longitude = 0.0;
+    free(c);
+}
 
-int main() {
-    return run_all_tests(all_tests);
+static void __add_highway_as_edge(graph_t g, int src, int dest, int miles) {
+    highway* h = (highway*)calloc(1, sizeof(highway));
+    h->miles = miles;
+    g_edge_add(g, src, dest, h);
+}
+
+static char* __str_duplicate(const char* s) {
+    size_t len = strlen(s);
+    char* buf = (char*)malloc((len + 1) * sizeof(char));
+    if (buf == NULL)
+        return NULL;
+    strcpy(buf, s);
+    buf[len] = '\0';
+    return buf;
 }

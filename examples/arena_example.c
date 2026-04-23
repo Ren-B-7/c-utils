@@ -1,76 +1,86 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "arena.h"
-#include "minunit.h"
+#include "../src/arena.h" // Include arena header
 
 /* --- Arena Allocator Example --- */
 
 // This example demonstrates the arena allocator.
 // It shows how to create an arena, allocate memory from it,
-// and then reset or destroy the arena.
+// and then restore or free the arena.
 
-char *test_arena_allocation() {
-    arena_t *arena = arena_create(1024); // Create an arena with 1KB capacity
-    mu_assert("arena_create failed", arena != NULL);
+int main()
+{
+	printf("--- Arena Allocator Example ---\n");
 
-    // Allocate memory from the arena
-    char *data1 = arena_alloc(arena, 50);
-    char *data2 = arena_alloc(arena, 100);
-    mu_assert("arena_alloc failed for data1", data1 != NULL);
-    mu_assert("arena_alloc failed for data2", data2 != NULL);
+	// Create an arena with 1KB capacity
+	arena_t arena = arena_new(1024);
+	if (arena.base == NULL) {
+		fprintf(stderr, "Error: arena_new failed.\n");
+		return 1;
+	}
+	printf("Arena created with capacity 1024 bytes.\n");
 
-    // Check if allocations are within the arena bounds (conceptual check)
-    // In a real scenario, you'd have more checks or rely on the allocator's internal logic.
+	// Allocate memory from the arena
+	printf("Allocating memory from arena...\n");
+	char* data1 = arena_alloc(&arena, 50);
+	char* data2 = arena_alloc(&arena, 100);
 
-    // Copy data into allocated buffers (example)
-    strcpy(data1, "Hello Arena!");
-    strcpy(data2, "Another piece of data.");
+	if (data1 == NULL) {
+		fprintf(stderr, "Error: arena_alloc failed for data1.\n");
+		arena_free(&arena);
+		return 1;
+	}
+	if (data2 == NULL) {
+		fprintf(stderr, "Error: arena_alloc failed for data2.\n");
+		arena_free(&arena);
+		return 1;
+	}
+	printf("Allocated 50 bytes for data1 and 100 bytes for data2.\n");
 
-    printf("Arena data 1: %s
-", data1);
-    printf("Arena data 2: %s
-", data2);
+	// Copy data into allocated buffers (example)
+	strcpy(data1, "Hello Arena!");
+	strcpy(data2, "Another piece of data.");
 
-    // Arena is automatically reset or destroyed.
-    // For this example, we'll demonstrate destruction.
-    arena_destroy(arena);
-    return NULL;
+	printf("Arena data 1: %s\n", data1);
+    printf("Arena data 2: %s\n", data2);
+
+    // Demonstrate arena_restore (checkpointing)
+    printf("Demonstrating arena restore...\n");
+    arena_checkpoint_t cp = arena_save(&arena);
+    printf("Saved checkpoint at offset: %zu\n", cp);
+
+    char* data3 = arena_alloc(&arena, 40);
+    if (data3 == NULL) {
+        fprintf(stderr, "Error: arena_alloc failed for data3.\n");
+        arena_free(&arena);
+        return 1;
+    }
+    strcpy(data3, "Temporary data.");
+    printf("Allocated data3: %s\n", data3);
+
+    // Restore to the checkpoint, invalidating data3
+    arena_restore(&arena, cp);
+    printf("Restored arena to checkpoint (offset %zu).\n", arena_save(&arena));
+
+    // Attempt to allocate again after restore
+    char* data4 = arena_alloc(&arena, 30);
+    if (data4 == NULL) {
+        fprintf(stderr, "Error: arena_alloc failed for data4 after restore.\n");
+        arena_free(&arena);
+        return 1;
+    }
+    strcpy(data4, "New data after restore.");
+    printf("Allocated data4: %s\n", data4);
+    // data3 is now dangling and should not be used.
+
+    // Free the arena
+    printf("Freeing arena...\n");
+    arena_free(&arena);
+	printf("Arena example finished.\n");
+
+	return 0;
 }
 
-char *test_arena_reset() {
-    arena_t *arena = arena_create(512);
-    mu_assert("arena_create failed", arena != NULL);
 
-    char *data1 = arena_alloc(arena, 20);
-    mu_assert("arena_alloc failed", data1 != NULL);
-    strcpy(data1, "Some data");
-
-    printf("Data before reset: %s
-", data1);
-
-    arena_reset(arena); // Reset the arena, all previous allocations are now invalid
-
-    // Attempt to allocate again from the reset arena
-    char *data2 = arena_alloc(arena, 30);
-    mu_assert("arena_alloc failed after reset", data2 != NULL);
-    strcpy(data2, "New data after reset");
-
-    printf("Data after reset: %s
-", data2);
-    // data1 is now dangling and should not be used.
-
-    arena_destroy(arena);
-    return NULL;
-}
-
-// Minunit runner for arena tests
-char *(*all_tests[])() = {
-    test_arena_allocation,
-    test_arena_reset,
-    NULL
-};
-
-int main() {
-    return run_all_tests(all_tests);
-}
