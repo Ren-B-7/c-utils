@@ -23,7 +23,7 @@ static int __assign_node(SimpleSet *set, const char *key, key_size_tt len, uint6
 static void __free_index(SimpleSet *set, uint64_t index);
 static int __set_contains(const SimpleSet *set, const char *key, key_size_tt len, uint64_t hash);
 static int __set_add(SimpleSet *set, const char *key, key_size_tt len, uint64_t hash);
-static void __relayout_nodes(SimpleSet *set, uint64_t start, short end_on_null);
+static int __relayout_nodes(SimpleSet *set, uint64_t start, short end_on_null);
 
 /*******************************************************************************
 ***        FUNCTIONS DEFINITIONS
@@ -112,7 +112,7 @@ char** set_to_array(const SimpleSet *set, uint64_t *size) {
     for (i = 0; i < set->number_nodes; ++i) {
         if (set->nodes[i] != NULL) {
             len = set->nodes[i]->_len;
-            results[j] = (char*)calloc(len, sizeof(char));
+            results[j] = (char*)calloc(len + 1, sizeof(char));
             memcpy(results[j], set->nodes[i]->_key, len);
             ++j;
         }
@@ -318,17 +318,21 @@ static void __free_index(SimpleSet *set, uint64_t index) {
     set->nodes[index] = NULL;
 }
 
-static void __relayout_nodes(SimpleSet *set, uint64_t start, short end_on_null) {
-    uint64_t index = 0, i;
-    for (i = start; i < set->number_nodes; ++i) {
+static int __relayout_nodes(SimpleSet *set, uint64_t start, short end_on_null) {
+    int moved_one = 1;
+    uint64_t index = 0, i, j;
+    for (j = 0; j < set->number_nodes; ++j) {
+        i = (start + j) % set->number_nodes;
         if(set->nodes[i] != NULL) {
-            __get_index(set, set->nodes[i]->_key, set->nodes[i]->_len, set->nodes[i]->_hash, &index);
-            if (i != index) { // we are moving this node
-                __assign_node(set, set->nodes[i]->_key, set->nodes[i]->_len, set->nodes[i]->_hash, index);
-                __free_index(set, i);
+            int res = __get_index(set, set->nodes[i]->_key, set->nodes[i]->_len, set->nodes[i]->_hash, &index);
+            if (res == SET_FALSE) { // we found a better place for this node
+                moved_one = 0;
+                set->nodes[index] = set->nodes[i];
+                set->nodes[i] = NULL;
             }
-        } else if (end_on_null == 0 && i != start) {
+        } else if (end_on_null == 0 && j != 0) {
             break;
         }
     }
+    return moved_one;
 }

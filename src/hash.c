@@ -214,20 +214,19 @@ static int  __allocate_hashmap(HashMap *h, uint64_t num_els) {
 
 static int __relayout_nodes(HashMap *h, uint64_t loc, short end_on_null) {
     int moved_one = 1;
-    uint64_t i;
-    for (i = loc; i < h->number_nodes; ++i) {
+    uint64_t i, j, id;
+    int error;
+    for (j = 0; j < h->number_nodes; ++j) {
+        i = (loc + j) % h->number_nodes;
         if(h->nodes[i] != NULL) {
-            uint64_t id;
-            int error;
-            // ignore the return since we do not need it
-            __get_node(h, h->nodes[i]->key, h->nodes[i]->hash, &id, &error);
+            void* res = __get_node(h, h->nodes[i]->key, h->nodes[i]->hash, &id, &error);
 
-            if (id != i) {
+            if (res == NULL && error == 0) { // we found a better place
                 moved_one = 0;
                 h->nodes[id] = h->nodes[i];
                 h->nodes[i] = NULL;
             }
-        } else if (end_on_null == 0 && i != loc) {
+        } else if (end_on_null == 0 && j != 0) {
             break;
         }
     }
