@@ -1,20 +1,18 @@
 /*******************************************************************************
-*   Demonstrate some of the uses of the doubly linked list datastructure by
-*   adding people into a list. We will make a person struct to show it being
-*   used with a non-standard datatype.
-*
-*   Use -v to include more debugging information
-*******************************************************************************/
+ *   Demonstrate some of the uses of the doubly linked list datastructure by
+ *   adding people into a list. We will make a person struct to show it being
+ *   used with a non-standard datatype.
+ *
+ *   Use -v to include more debugging information
+ *******************************************************************************/
 
-
+#include <assert.h> // For assert
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <assert.h> // For assert
 
 #include "../src/dllist.h" // Assuming dllist.h is the header for doubly linked list
-
 
 // Define a sample struct to store in the list
 typedef struct person {
@@ -92,15 +90,18 @@ void test_dllist_basic_operations()
 		person_t* current_person = (person_t*) node->data;
 		assert(current_person != NULL);
 		if (count == 0) {
-			assert(strcmp(current_person->name, "Alice") == 0 && current_person->id == 1);
+			assert(strcmp(current_person->name, "Alice") == 0 &&
+			 current_person->id == 1);
 			printf("  - %d: %s (Age: %d)
 ", current_person->id, current_person->name, current_person->age);
 		} else if (count == 1) {
-			assert(strcmp(current_person->name, "Bob") == 0 && current_person->id == 2);
+			assert(strcmp(current_person->name, "Bob") == 0 &&
+			 current_person->id == 2);
 			printf("  - %d: %s (Age: %d)
 ", current_person->id, current_person->name, current_person->age);
 		} else if (count == 2) {
-			assert(strcmp(current_person->name, "Charlie") == 0 && current_person->id == 3);
+			assert(strcmp(current_person->name, "Charlie") == 0 &&
+			 current_person->id == 3);
 			printf("  - %d: %s (Age: %d)
 ", current_person->id, current_person->name, current_person->age);
 		}
@@ -117,15 +118,18 @@ void test_dllist_basic_operations()
 		person_t* current_person = (person_t*) node->data;
 		assert(current_person != NULL);
 		if (count == 0) {
-			assert(strcmp(current_person->name, "Charlie") == 0 && current_person->id == 3);
+			assert(strcmp(current_person->name, "Charlie") == 0 &&
+			 current_person->id == 3);
 			printf("  - %d: %s (Age: %d)
 ", current_person->id, current_person->name, current_person->age);
 		} else if (count == 1) {
-			assert(strcmp(current_person->name, "Bob") == 0 && current_person->id == 2);
+			assert(strcmp(current_person->name, "Bob") == 0 &&
+			 current_person->id == 2);
 			printf("  - %d: %s (Age: %d)
 ", current_person->id, current_person->name, current_person->age);
 		} else if (count == 2) {
-			assert(strcmp(current_person->name, "Alice") == 0 && current_person->id == 1);
+			assert(strcmp(current_person->name, "Alice") == 0 &&
+			 current_person->id == 1);
 			printf("  - %d: %s (Age: %d)
 ", current_person->id, current_person->name, current_person->age);
 		}

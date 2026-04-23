@@ -24,14 +24,14 @@ int main()
 	hashmap_set_int(&h, "elderberry", 30);
 
 	printf("\nRetrieving values:\n");
-	int *val_apple = (int*)hashmap_get(&h, "apple");
+	int* val_apple = (int*) hashmap_get(&h, "apple");
 	if (val_apple) {
 		printf("Value for 'apple': %d\n", *val_apple);
 	} else {
 		printf("'apple' not found.\n");
 	}
 
-	int *val_banana = (int*)hashmap_get(&h, "banana");
+	int* val_banana = (int*) hashmap_get(&h, "banana");
 	if (val_banana) {
 		printf("Value for 'banana': %d\n", *val_banana);
 	} else {
@@ -39,7 +39,7 @@ int main()
 	}
 
 	// Try to get a non-existent key
-	int *val_grape = (int*)hashmap_get(&h, "grape");
+	int* val_grape = (int*) hashmap_get(&h, "grape");
 	if (val_grape) {
 		printf("Value for 'grape': %d\n", *val_grape);
 	} else {
@@ -50,14 +50,14 @@ int main()
 	printf("\nRemoving 'cherry'...\n");
 	void* removed_val = hashmap_remove(&h, "cherry");
 	if (removed_val) {
-		printf("Removed 'cherry'. Value was: %d\n", *(int*)removed_val);
+		printf("Removed 'cherry'. Value was: %d\n", *(int*) removed_val);
 		free(removed_val); // Free the memory for the removed value
 	} else {
 		printf("'cherry' not found for removal.\n");
 	}
 
 	// Verify removal
-	int* val_cherry = (int*)hashmap_get(&h, "cherry");
+	int* val_cherry = (int*) hashmap_get(&h, "cherry");
 	if (val_cherry) {
 		printf("Value for 'cherry' after removal: %d\n", *val_cherry);
 	} else {

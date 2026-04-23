@@ -44,43 +44,41 @@ int main()
 	strcpy(data2, "Another piece of data.");
 
 	printf("Arena data 1: %s\n", data1);
-    printf("Arena data 2: %s\n", data2);
+	printf("Arena data 2: %s\n", data2);
 
-    // Demonstrate arena_restore (checkpointing)
-    printf("Demonstrating arena restore...\n");
-    arena_checkpoint_t cp = arena_save(&arena);
-    printf("Saved checkpoint at offset: %zu\n", cp);
+	// Demonstrate arena_restore (checkpointing)
+	printf("Demonstrating arena restore...\n");
+	arena_checkpoint_t cp = arena_save(&arena);
+	printf("Saved checkpoint at offset: %zu\n", cp);
 
-    char* data3 = arena_alloc(&arena, 40);
-    if (data3 == NULL) {
-        fprintf(stderr, "Error: arena_alloc failed for data3.\n");
-        arena_free(&arena);
-        return 1;
-    }
-    strcpy(data3, "Temporary data.");
-    printf("Allocated data3: %s\n", data3);
+	char* data3 = arena_alloc(&arena, 40);
+	if (data3 == NULL) {
+		fprintf(stderr, "Error: arena_alloc failed for data3.\n");
+		arena_free(&arena);
+		return 1;
+	}
+	strcpy(data3, "Temporary data.");
+	printf("Allocated data3: %s\n", data3);
 
-    // Restore to the checkpoint, invalidating data3
-    arena_restore(&arena, cp);
-    printf("Restored arena to checkpoint (offset %zu).\n", arena_save(&arena));
+	// Restore to the checkpoint, invalidating data3
+	arena_restore(&arena, cp);
+	printf("Restored arena to checkpoint (offset %zu).\n", arena_save(&arena));
 
-    // Attempt to allocate again after restore
-    char* data4 = arena_alloc(&arena, 30);
-    if (data4 == NULL) {
-        fprintf(stderr, "Error: arena_alloc failed for data4 after restore.\n");
-        arena_free(&arena);
-        return 1;
-    }
-    strcpy(data4, "New data after restore.");
-    printf("Allocated data4: %s\n", data4);
-    // data3 is now dangling and should not be used.
+	// Attempt to allocate again after restore
+	char* data4 = arena_alloc(&arena, 30);
+	if (data4 == NULL) {
+		fprintf(stderr, "Error: arena_alloc failed for data4 after restore.\n");
+		arena_free(&arena);
+		return 1;
+	}
+	strcpy(data4, "New data after restore.");
+	printf("Allocated data4: %s\n", data4);
+	// data3 is now dangling and should not be used.
 
-    // Free the arena
-    printf("Freeing arena...\n");
-    arena_free(&arena);
+	// Free the arena
+	printf("Freeing arena...\n");
+	arena_free(&arena);
 	printf("Arena example finished.\n");
 
 	return 0;
 }
-
-

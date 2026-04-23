@@ -7,6 +7,14 @@ DISTDIR = dist
 SRCDIR = src
 EXAMPLEDIR = examples
 
+# Source and Header files
+SRCS = $(wildcard $(SRCDIR)/*.c) $(wildcard $(TESTDIR)/*.c) $(wildcard $(EXAMPLEDIR)/*.c)
+HDRS = $(wildcard $(SRCDIR)/*.h)
+
+# Clang-tidy configuration
+CLANG_TIDY_CHECKS =
+CLANG_TIDY_FLAGS = -I$(SRCDIR)
+
 # Default target
 all: libraries examples test
 
@@ -208,3 +216,18 @@ clean:
 	@ rm -f $(CURDIR)/*.gcda
 	@ rm -f $(CURDIR)/*.gcov
 	@ echo "Clean complete."
+
+# --- Format files ---
+# Ensures all files are formatted accordingly
+format:
+	clang-format -i $(SRCS) $(HDRS)
+	mbake format --config ./.bake.toml Makefile
+
+lint:
+	clang-tidy $(CLANG_TIDY_CHECKS) $(SRCS) -- $(CLANG_TIDY_FLAGS)
+	mbake validate --config ./.bake.toml Makefile
+
+fix:
+	clang-tidy --fix $(CLANG_TIDY_CHECKS) $(SRCS) -- $(CLANG_TIDY_FLAGS)
+
+.PHONY: all libraries string bitarray fileutils linkedlist doublylinkedlist stack queue graph permutations arena hash logger bloom set debug openmp test examples runtests windows windows-libraries windows-test windows-examples windows-runtests clean format lint fix
