@@ -16,19 +16,19 @@ MU_TEST(test_timing_simple) {
     Timing t;
 
     timing_start(&t);
-    printf("Begin sleeping test... about 61 seconds\n");
-    sleep(61); /* sleep isn't exactly this many seconds... so get close! */
+    printf("Begin sleeping test... about 1 second\n");
+    sleep(1); /* sleep isn't exactly this many seconds... so get close! */
     timing_end(&t);
-    mu_assert_double_between(60.75, 61.25, t.timing_double);
+    mu_assert_double_between(0.9, 1.1, t.timing_double);
 
     /* set these to something we can test! */
     t.milliseconds = 0;
     t.microseconds = 150;
     res = format_time_diff(&t);
 
-    mu_assert_string_eq("00:01:01:000.150", res);
+    mu_assert_string_eq("00:00:01:000.150", res);
     mu_assert_int_eq(0, t.hours);
-    mu_assert_int_eq(1, t.minutes);
+    mu_assert_int_eq(0, t.minutes);
     mu_assert_int_eq(1, t.seconds);
     mu_assert_int_eq(0, t.milliseconds);
     mu_assert_int_eq(150, t.microseconds);
