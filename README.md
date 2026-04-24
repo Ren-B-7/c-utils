@@ -3,8 +3,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![GitHub release](https://img.shields.io/github/release/barrust/c-utils.svg)](https://github.com/barrust/c-utils/releases)
 [![C/C++ CI](https://github.com/barrust/c-utils/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/barrust/c-utils/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/barrust/c-utils/branch/master/graph/badge.svg)](https://codecov.io/gh/barrust/c-utils)
-
 
 This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but are ended up written, as needed, and usually differently each time and without unit tests. The goal is to provide a single place to store each of these libraries and to provide unit tests.
 
@@ -13,6 +11,7 @@ If there are other commonly used code or data-structures that should be added, p
 ## Credits
 
 Special thanks to **Tyler Barrus** ([barrust](https://github.com/barrust/)) for the following implementations:
+
 - [bloom filter](https://github.com/barrust/bloom)
 - [hashmap](https://github.com/barrust/hashmap)
 - [set](https://github.com/barrust/set)
@@ -20,7 +19,6 @@ Special thanks to **Tyler Barrus** ([barrust](https://github.com/barrust/)) for 
 - [fileutils](https://github.com/barrust/c-utils)
 - [timing-c](https://github.com/barrust/c-utils)
 - And many others in this collection!
-
 
 ##### Unit tests
 
@@ -30,16 +28,18 @@ To run the unit-test suite, simply compile the test files using the provided `Ma
 
 #### Issues
 
-If an unexpected outcome occurs, please submit an [issue on github](https://github.com/barrust/c-utils/issues). Please also provide a ***minimal code example*** that encapsulates the error.
+If an unexpected outcome occurs, please submit an [issue on github](https://github.com/barrust/c-utils/issues). Please also provide a **_minimal code example_** that encapsulates the error.
 
 A great [issue](https://github.com/barrust/c-utils/issues) would provide the following:
+
 > s_remove_unwanted_chars shows duplicate entries after removal.
-> ``` c
+>
+> ```c
 > char test[] = "This is a test";
 > // expect "Ths s a es"
 > // get "Ths s a esest"
 > // Notice the extra `est`; likely due to not erasing the trailing chars
-> s_remove_unwanted_chars(test, "ti");  
+> s_remove_unwanted_chars(test, "ti");
 > ```
 
 #### Examples
@@ -47,7 +47,6 @@ A great [issue](https://github.com/barrust/c-utils/issues) would provide the fol
 Example programs are provided in the `./examples` folder. You can compile these examples using `make examples`. They can be run from the `./dist` folder and are named prepended with `ex_`.
 
 Not all functionality is demonstrated for all libraries, but hopefully enough is present to help make using these libraries easier. All functionality for each library is documented in the `.h` files.
-
 
 ## stringlib
 
@@ -59,13 +58,13 @@ Documentation of each function is found in the `stringlib.h` file.
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `stringlib` library
+**_NONE_** - There are no needed compiler flags for the `stringlib` library
 
 #### Usage
 
 To use, copy the `stringlib.h` and `stringlib.c` files into your project folder and add them to your project.
 
-``` c
+```c
 #include "stringlib.h"
 
 char str[] = "   This is a \t horrible \n\r string \f  to\n clean up... please help!\n\r";
@@ -83,24 +82,23 @@ pos = s_find_str_reverse(str, "ri"); // 21
 s_remove_unwanted_chars(str, "tph"); // "Tis is a orrible sring o clean u... lease el!"
 ```
 
-
 ## fileutils
 
 The file utils library provides utility functions to deal with basic file system operations. From determining if a file exists, to making directories, to reading in a file and parsing out the lines.
 
 All functions are documented within the `fileutils.h` file.
 
-Unfortunately, I have not been able to test this library on Windows machines. If errors arise on Windows, please submit an issue or, even better, a ***pull request***! If something is shown to work on Windows, that information would also be very helpful!
+Unfortunately, I have not been able to test this library on Windows machines. If errors arise on Windows, please submit an issue or, even better, a **_pull request_**! If something is shown to work on Windows, that information would also be very helpful!
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `fileutils` library
+**_NONE_** - There are no needed compiler flags for the `fileutils` library
 
 #### Usage
 
 To use, copy the `fileutils.h` and `fileutils.c` files into your project folder and add them to your project.
 
-``` c
+```c
 #include "fileutils.h"
 
 int res;
@@ -132,20 +130,19 @@ f_parse_lines(f);
 f_free(f);
 ```
 
-
 ## bitarray
 
 The bit array library is provided to allow for a drop in bit array. It uses the smallest binary size possible for the array (`char`) to reduce the few extra bits needed compared to using an int (8 bits per element vs 32). It also tracks how many bits were desired and how many elements were used to hold the bit array.
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `bitarray` library
+**_NONE_** - There are no needed compiler flags for the `bitarray` library
 
 #### Usage
 
 To use, copy the `bitarray.h` and `bitarray.c` files into your project folder and add them to your project.
 
-``` c
+```c
 #include "bitarray.h"
 
 bitarray_t ba = ba_init(20000000);  // we want to track 20,000,000 items!
@@ -170,7 +167,6 @@ ba_reset_bitarray(ba); // all the bits are set to 0
 ba_free(ba);
 ```
 
-
 ## linkedlist
 
 This library adds a generic linked list implementation. Any type of data can be added to the list as the data type of the data is `void*`. Elements can be added or removed to the end or any location within the list. If you have fewer access and removal needs it may be better to use a [stack](#stack) which provides the same structure.
@@ -179,13 +175,13 @@ All functions are documented within the `llist.h` file.
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `linked list` library
+**_NONE_** - There are no needed compiler flags for the `linked list` library
 
 #### Usage
 
 To use, simply copy the `llist.h` and `llist.c` files into your project and include it where needed.
 
-``` c
+```c
 #include "llist.h"
 
 llist_t l = ll_init();
@@ -220,7 +216,6 @@ while (node != NULL) {
 ll_free_alt(l, true); // even free the data field
 ```
 
-
 ## doublylinkedlist
 
 This library adds a generic doubly linked list implementation. Any type of data can be added to the list as the data type of the data is `void*`. Elements can be added or removed to the end or any location within the list. This is useful when you need to control where nodes are inserted and the order that they are removed. If you have fewer access and removal needs it may be better to use a [queue](#queue) which provides the same structure.
@@ -229,13 +224,13 @@ All functions are documented within the `dllist.h` file.
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `doubly linked list` library
+**_NONE_** - There are no needed compiler flags for the `doubly linked list` library
 
 #### Usage
 
 To use, simply copy the `dllist.h` and `dllist.c` files into your project and include it where needed.
 
-``` c
+```c
 #include "dllist.h"
 
 dllist_t l = dll_init();
@@ -278,13 +273,13 @@ All functions are documented within the `stack.h` file.
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `stack` library
+**_NONE_** - There are no needed compiler flags for the `stack` library
 
 #### Usage
 
 To use, simply copy the `stack.h` and `stack.c` files into your project and include it where needed.
 
-``` c
+```c
 #include "stack.h"
 
 stack_list_t stk = stk_init();
@@ -312,13 +307,13 @@ All functions are documented within the `queue.h` file.
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `queue` library
+**_NONE_** - There are no needed compiler flags for the `queue` library
 
 #### Usage
 
 To use, simply copy the `queue.h` and `queue.c` files into your project and include it where needed.
 
-``` c
+```c
 #include "queue.h"
 
 queue_list_t q = q_init();
@@ -348,13 +343,13 @@ All functions are documented within the `graph.h` file.
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `graph` library
+**_NONE_** - There are no needed compiler flags for the `graph` library
 
 #### Usage
 
 To use, simply copy the `graph.h` and `graph.c` files into your project and include it where needed.
 
-``` c
+```c
 #include "graph.h"
 
 graph_t g = g_init();
@@ -395,13 +390,13 @@ There are times when one needs to run over all (most?) of the permutations of a 
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `permutations` library
+**_NONE_** - There are no needed compiler flags for the `permutations` library
 
 #### Usage
 
 To use, simply copy the `permutations.h` and `permutations.c` files into your project and include it where needed.
 
-``` c
+```c
 #include "permutations.h"
 
 permutations_t p = perm_init(5, "ATCG");
@@ -415,20 +410,19 @@ for (unsigned int i = 0; i < 1024; ++i) {
 perm_free(p);
 ```
 
-
 ## timing-c
 
 This header utility is to be able to quickly provide timing functionality to standard `C` code. It is designed to be beneficial to me as I am tired of re-writting the same type of functionality. To use, simply copy the header into your project folder.
 
 #### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `timing.h` library
+**_NONE_** - There are no needed compiler flags for the `timing.h` library
 
 #### Usage
 
 To use, simply copy the `timing.h` file into your project and include it where needed.
 
-``` c
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include "timing.h"
@@ -459,13 +453,13 @@ This header utility is a testing framework for C programs. It is a fork of [siu/
 
 ### Compiler Flags
 
-***NONE*** - There are no needed compiler flags for the `minunit.h` testing framework.
+**_NONE_** - There are no needed compiler flags for the `minunit.h` testing framework.
 
 ### Usage
 
 For full examples, please view the tests in the `./test` folder. A quick run down of setting up the tests is provided below along with a quick set of function documentation.
 
-``` c
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <minunit.h>
@@ -502,30 +496,31 @@ int main() {
 
 ### Documentation
 
-* **mu_check(test)**: Checks to verify that the passed boolean expression test is `true`; fails otherwise.
-* **mu_fail(message)**: Automatically fails the assertion and returns the provided message; useful for non-implemented features, etc.
-* **mu_assert(test, message)**: Assert that the boolean expression `test` is true, otherwise fail and print the passed `message`.
-* **mu_assert_int_eq(expected, result)**: Assert that the `expected` int is the same as the passed `result`.
-* **mu_assert_int_not_eq(expected, result)**: Assert that the `result` does not equal `expected`; not this is useful for checking comparison functions, etc.
-* **mu_assert_int_greater_than(val, result)**: Assert that `result` is greater than `val`.
-* **mu_assert_int_less_than(val, result)**:  Assert that `result` is less than `val`.
-* **mu_assert_int_between(expected_lower, expected_upper, result)**: Assert that the `result` is between (inclusive) `expected_lower` and `expected_upper`; if upper and lower are reversed, then it is **not** between!
-* **mu_assert_int_in(expected, array_length, result)**: Assert that the `result` is a member of the `expected` array; `array_length` is needed to know the number of elements in the array.
-* **mu_assert_double_eq(expected, result)**: Assert that the double in `result` is the same as the `expected` double.
-* **mu_assert_double_greater_than(val, result)**: Assert that `result` is greater than `val`.
-* **mu_assert_double_less_than(val, result)**:  Assert that `result` is less than `val`.
-* **mu_assert_double_between(expected_lower, expected_upper, result)**: Assert that `result` is between (inclusive) `expected_lower` and `expected_upper`; if upper and lower are reversed, then it is **not** between!
-* **mu_assert_string_eq(expected, result)**: Assert that the `result` string (char* or char[]) is the same as the `expected` string.
-* **mu_assert_null(result)**: Assert that the passed `result` pointer is `NULL`.
-* **mu_assert_not_null(result)**: Assert that the passed `result` pointer is not `NULL`.
-* **mu_assert_pointers_eq(pointer1, pointer2)**: Assert that `pointer1` and `pointer2` point to the same memory location.
-* **mu_assert_pointers_not_eq(pointer1, pointer2)**: Assert that `pointer1` and `pointer2` do not point to the same memory location.
+- **mu_check(test)**: Checks to verify that the passed boolean expression test is `true`; fails otherwise.
+- **mu_fail(message)**: Automatically fails the assertion and returns the provided message; useful for non-implemented features, etc.
+- **mu_assert(test, message)**: Assert that the boolean expression `test` is true, otherwise fail and print the passed `message`.
+- **mu_assert_int_eq(expected, result)**: Assert that the `expected` int is the same as the passed `result`.
+- **mu_assert_int_not_eq(expected, result)**: Assert that the `result` does not equal `expected`; not this is useful for checking comparison functions, etc.
+- **mu_assert_int_greater_than(val, result)**: Assert that `result` is greater than `val`.
+- **mu_assert_int_less_than(val, result)**: Assert that `result` is less than `val`.
+- **mu_assert_int_between(expected_lower, expected_upper, result)**: Assert that the `result` is between (inclusive) `expected_lower` and `expected_upper`; if upper and lower are reversed, then it is **not** between!
+- **mu_assert_int_in(expected, array_length, result)**: Assert that the `result` is a member of the `expected` array; `array_length` is needed to know the number of elements in the array.
+- **mu_assert_double_eq(expected, result)**: Assert that the double in `result` is the same as the `expected` double.
+- **mu_assert_double_greater_than(val, result)**: Assert that `result` is greater than `val`.
+- **mu_assert_double_less_than(val, result)**: Assert that `result` is less than `val`.
+- **mu_assert_double_between(expected_lower, expected_upper, result)**: Assert that `result` is between (inclusive) `expected_lower` and `expected_upper`; if upper and lower are reversed, then it is **not** between!
+- **mu_assert_string_eq(expected, result)**: Assert that the `result` string (char\* or char[]) is the same as the `expected` string.
+- **mu_assert_null(result)**: Assert that the passed `result` pointer is `NULL`.
+- **mu_assert_not_null(result)**: Assert that the passed `result` pointer is not `NULL`.
+- **mu_assert_pointers_eq(pointer1, pointer2)**: Assert that `pointer1` and `pointer2` point to the same memory location.
+- **mu_assert_pointers_not_eq(pointer1, pointer2)**: Assert that `pointer1` and `pointer2` do not point to the same memory location.
 
 ## macros
 
 A collection of general utility macros for common tasks like array length, min/max, clamping, and bit manipulation.
 
 #### Usage
+
 ```c
 #include "macros.h"
 
@@ -547,6 +542,7 @@ if (BIT_TST(flags, 3)) {
 A macro-based dynamic array (vector) implementation that supports type-safe vectors of any type.
 
 #### Usage
+
 ```c
 #include "vec.h"
 
@@ -568,6 +564,7 @@ VEC_FREE(v);
 A simple arena allocator for fast, contiguous memory allocation.
 
 #### Usage
+
 ```c
 #include "arena.h"
 
@@ -584,6 +581,7 @@ arena_free(&a);
 A simple hash table implementation using FNV-1a hashing and open addressing.
 
 #### Usage
+
 ```c
 #include "hash.h"
 
@@ -603,6 +601,7 @@ hash_free(&h);
 A simple result type for error handling, inspired by modern languages.
 
 #### Usage
+
 ```c
 #include "result.h"
 
@@ -622,6 +621,7 @@ if (!res.ok) {
 A simple logging utility supporting different log levels and file output.
 
 #### Usage
+
 ```c
 #include "logger.h"
 
@@ -637,6 +637,7 @@ log_close();
 A generic set implementation.
 
 #### Usage
+
 ```c
 #include "set.h"
 
@@ -654,6 +655,7 @@ set_destroy(&s);
 A generic hashmap implementation.
 
 #### Usage
+
 ```c
 #include "hashmap_barrust.h"
 
@@ -668,6 +670,7 @@ hashmap_destroy(hm);
 A bloom filter implementation.
 
 #### Usage
+
 ```c
 #include "bloom.h"
 
@@ -683,6 +686,7 @@ bloom_filter_destroy(&bf);
 ## Credits
 
 Special thanks to **Tyler Barrus** ([barrust](https://github.com/barrust/)) for the following implementations:
+
 - [bloom filter](https://github.com/barrust/bloom)
 - [hashmap](https://github.com/barrust/hashmap)
 - [set](https://github.com/barrust/set)
