@@ -1060,7 +1060,6 @@ static char* __str_duplicate(const char* s)
 
 static int __make_test_file(char* s, size_t len, char c)
 {
-	/* very specific filename changes... */
 	s[len - 5] = c;
 	fs_touch(s);
 	return fs_identify_path(s);

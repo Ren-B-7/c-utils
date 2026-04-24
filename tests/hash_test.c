@@ -94,9 +94,8 @@ int main()
 	res = 0;
 
 	printf("HashMap: Modify elements in the hash: ");
-	// now change it up some
 	PARRALLEL_FOR
-	for (i = 0; i < num_els; i++) { // hit each one to ensure we found them all
+	for (i = 0; i < num_els; i++) {
 		char key[KEY_LEN] = {0};
 		sprintf(key, "%d", i);
 		int* v = (int*) hashmap_get(&h, key);
@@ -111,7 +110,7 @@ int main()
 
 	printf("HashMap: Check modified elements in the hash: ");
 	PARRALLEL_FOR
-	for (i = 0; i < num_els; i++) { // hit each one to ensure we found them all
+	for (i = 0; i < num_els; i++) {
 		char key[KEY_LEN] = {0};
 		sprintf(key, "%d", i);
 		int* v = (int*) hashmap_get(&h, key);
@@ -143,11 +142,10 @@ int main()
 	free(keys);
 	success_or_failure(0);
 
-	/* TODO: fix this to make sure we actually removed them */
 	printf("HashMap: Remove keys: ");
 	fflush(stdout);
 	PARRALLEL_FOR
-	for (i = 0; i <= num_els; i += 500) { // lets remove 5 keys
+	for (i = 0; i <= num_els; i += 500) {
 		char str[KEY_LEN] = {0};
 		sprintf(str, "%d", i);
 		hashmap_remove(&h, str);
@@ -156,7 +154,7 @@ int main()
 
 	printf("HashMap: Check removed keys: ");
 	fflush(stdout);
-	for (i = 0; i < num_els; i++) { // hit each one to ensure we found them all
+	for (i = 0; i < num_els; i++) {
 		char key[KEY_LEN] = {0};
 		sprintf(key, "%d", i);
 		int* v = (int*) hashmap_get(&h, key);

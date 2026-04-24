@@ -126,8 +126,6 @@ char** set_to_array(const SimpleSet* set, uint64_t* size)
 	uint64_t i, j = 0;
 	for (i = 0; i < set->number_nodes; ++i) {
 		if (set->nodes[i] != NULL) {
-			// FIX: Moved 'len' declaration into the scope where it's used (line
-			// 127)
 			size_t len = set->nodes[i]->_len;
 			results[j] = (char*) calloc(len + 1, sizeof(char));
 			memcpy(results[j], set->nodes[i]->_key, len);
@@ -378,12 +376,11 @@ static int __relayout_nodes(SimpleSet* set, uint64_t start, short end_on_null)
 	int moved_one = 1;
 	uint64_t index = 0, j;
 	for (j = 0; j < set->number_nodes; ++j) {
-		// FIX: Moved 'i' declaration into the loop scope (line 378)
 		uint64_t i = (start + j) % set->number_nodes;
 		if (set->nodes[i] != NULL) {
 			int res = __get_index(set, set->nodes[i]->_key, set->nodes[i]->_len,
 			 set->nodes[i]->_hash, &index);
-			if (res == SET_FALSE) { // we found a better place for this node
+			if (res == SET_FALSE) {
 				moved_one = 0;
 				set->nodes[index] = set->nodes[i];
 				set->nodes[i] = NULL;

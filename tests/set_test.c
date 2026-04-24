@@ -65,8 +65,7 @@ int main()
 	assert(A.used_nodes == elements);
 
 	char** keys = set_to_array(&A, &ui);
-	assert(A.used_nodes == ui); // in multi-thread, don't want to assume it
-	                            // hasn't changed
+	assert(A.used_nodes == ui);
 	printf("==== Set A has %" PRIu64 " Keys ====\n", ui);
 	for (i = 0; i < 15; ++i) {
 		printf("%" PRIu64 "\t%s\n", i, keys[i]);

@@ -27,7 +27,7 @@ char* s_duplicate(const char* s)
 		return NULL;
 	}
 
-	size_t len = strlen(s); /* ensure room for NULL terminated */
+	size_t len = strlen(s);
 	char* buf = (char*) malloc((len + 1) * sizeof(char));
 	if (buf == NULL) {
 		return NULL;
@@ -115,7 +115,7 @@ char* s_snprintf(const char* fmt, ...)
 
 	char* buf = (char*) malloc((len + 1) * sizeof(char));
 	if (buf == NULL) {
-		return NULL; /* must be an error state */
+		return NULL;
 	}
 
 	va_start(args, fmt);
@@ -361,12 +361,12 @@ int s_find_any_reverse(const char* s, const char* s2)
 
 	const char* res = NULL;
 	const char* loc = strpbrk((char*) s, s2);
-	if (loc == NULL) { /* quick exit */
+	if (loc == NULL) {
 		return -1;
 	}
 
 	while (loc != NULL) {
-		res = loc; /* it matches a single element... */
+		res = loc;
 		loc = strpbrk(loc + 1, s2);
 	}
 	return res - s;
@@ -427,11 +427,10 @@ char* s_append_alt(char*(*s1), const char* s2)
 	}
 
 	if (res == NULL) {
-		return NULL; // something went wrong getting memory
+		return NULL;
 	}
 
 	strcat(res, s2);
-	/* set s1 pointer to the res pointer */
 	*s1 = res;
 	res = NULL;
 	return *s1;
@@ -448,14 +447,14 @@ char* s_concat(const char* s1, const char* s2)
 
 int s_cmp(const char* s1, const char* s2)
 {
-	return s_cmp_alt(s1, s2, CASE_SENSITIVE); /* we want it case sensitive */
+	return s_cmp_alt(s1, s2, CASE_SENSITIVE);
 }
 
 int s_cmp_alt(const char* s1, const char* s2, int casesensitive)
 {
-	if (s1 == s2) {          // then they point to the same thing!
+	if (s1 == s2) {
 		return 0;
-	} else if (s1 == NULL) { // give it some behavior
+	} else if (s1 == NULL) {
 		return -1;
 	} else if (s2 == NULL) {
 		return 1;
@@ -474,7 +473,6 @@ int s_cmp_alt(const char* s1, const char* s2, int casesensitive)
 	return res;
 }
 
-// FIX: Added NULL check after calloc() (line 485-491)
 char* s_extract_substring(const char* s, size_t start, size_t length)
 {
 	if (s == NULL) {
@@ -515,7 +513,6 @@ char* s_extract_substring_c(const char* s, const char c, size_t length)
 	return s_extract_substring(s, start, length);
 }
 
-// FIX: Added NULL check after calloc() (line 535)
 char** s_split_string_c(const char* s, const char c, int* num)
 {
 	if (s == NULL || num == NULL) {
@@ -523,11 +520,7 @@ char** s_split_string_c(const char* s, const char c, int* num)
 	}
 
 	int max_size = s_find_cnt(s, c);
-	char** results = (char**) calloc(max_size + 1, sizeof(char*)); /* will be
-	                                                                  cut down
-	                                                                  for empty
-	                                                                  lines...
-	                                                                */
+	char** results = (char**) calloc(max_size + 1, sizeof(char*));
 	if (results == NULL) {
 		return NULL;
 	}
@@ -564,11 +557,7 @@ char** s_split_string_str(const char* s, const char* sub, int* num)
 	}
 
 	int max_size = s_find_cnt_str(s, sub);
-	char** results = (char**) calloc(max_size + 1, sizeof(char*)); /* will be
-	                                                                  cut down
-	                                                                  for empty
-	                                                                  lines...
-	                                                                */
+	char** results = (char**) calloc(max_size + 1, sizeof(char*));
 	if (results == NULL) {
 		return NULL;
 	}
@@ -601,7 +590,6 @@ char** s_split_string_str(const char* s, const char* sub, int* num)
 	return v;
 }
 
-// FIX: Added NULL check after calloc() (line 619 area)
 char** s_split_string_any(const char* s, const char* s2, int* num)
 {
 	if (s == NULL || num == NULL) {

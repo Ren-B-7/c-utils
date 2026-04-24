@@ -114,10 +114,6 @@ extern "C" {
 	/* Export the current bloom filter to file */
 	int bloom_filter_export(const BloomFilter* bf, const char* filepath);
 
-	/*  Export and import as a hex string; not space effecient but allows for
-	   storing multiple blooms in a single file or in a database, etc.
-
-	    NOTE: It is up to the caller to free the allocated memory */
 	char* bloom_filter_export_hex_string(const BloomFilter* bf);
 	int bloom_filter_import_hex_string_alt(BloomFilter* bf, const char* hex,
 	 BloomHashFunction hash_function);
@@ -128,7 +124,6 @@ extern "C" {
 		return bloom_filter_import_hex_string_alt(bf, hex, NULL);
 	}
 
-	/* Set or change the hashing function */
 	void bloom_filter_set_hash_function(BloomFilter* bf,
 	 BloomHashFunction hash_function);
 

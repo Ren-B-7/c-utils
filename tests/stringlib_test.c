@@ -161,8 +161,7 @@ MU_TEST(test_remove_unwanted_chars_single)
 MU_TEST(test_remove_unwanted_chars_mult)
 {
 	s_trim(s_standardize_whitespace(foostring, ' '));
-	mu_assert_string_eq(foostring,
-	 s_remove_unwanted_chars(foostring, NULL)); // no changes!
+	mu_assert_string_eq(foostring, s_remove_unwanted_chars(foostring, NULL));
 	mu_assert_null(s_remove_unwanted_chars(NULL, "oedy."));
 	mu_assert_string_eq("Th quick brwn fx jump vr th laz g",
 	 s_remove_unwanted_chars(foostring, "oedy."));
@@ -175,7 +174,7 @@ MU_TEST(test_replace_unwanted_chars_single)
 {
 	s_trim(s_standardize_whitespace(foostring, ' '));
 	mu_assert_string_eq(foostring,
-	 s_replace_unwanted_chars(foostring, NULL, 'a')); // no changes!
+	 s_replace_unwanted_chars(foostring, NULL, 'a'));
 	mu_assert_null(s_replace_unwanted_chars(NULL, "oedy.", 'a'));
 	mu_assert_string_eq("The quick brawn fax jumped aver the lazy dag.",
 	 s_replace_unwanted_chars(foostring, "o", 'a'));

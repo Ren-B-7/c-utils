@@ -359,7 +359,6 @@ static inline float __get_fullness(const HashMap* h)
 	return h->used_nodes / (float) h->number_nodes;
 }
 
-// FIX: Improved variable scoping in the loop (line 264 area)
 static void __calc_stats(const HashMap* h, uint64_t* worst_case,
  uint64_t* max_big_o, float* avg_big_o, float* avg_used_big_o,
  unsigned int* hash, unsigned int* idx)
@@ -375,7 +374,6 @@ static void __calc_stats(const HashMap* h, uint64_t* worst_case,
 			free(idxs);
 			return;
 		}
-		// FIX: Declare 'i' in the for loop scope
 		for (uint64_t i = 0; i < h->number_nodes; ++i) {
 			if (h->nodes[i] != NULL) {
 				++cur;
@@ -402,8 +400,6 @@ static void __calc_stats(const HashMap* h, uint64_t* worst_case,
 		__merge_sort(hashes, h->used_nodes);
 		__merge_sort(idxs, h->used_nodes);
 
-		// then do some maths to see if there are actual collisions
-		// FIX: Declare 'i' in this second loop scope
 		for (uint64_t i = 0; i < h->used_nodes - 1; ++i) {
 			if (hashes[i] == hashes[i + 1]) {
 				++hash_col;
