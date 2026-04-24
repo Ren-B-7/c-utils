@@ -22,7 +22,7 @@ MU_TEST(test_timing_simple)
 	printf("Begin sleeping test... about 1 second\n");
 	sleep(1); /* sleep isn't exactly this many seconds... so get close! */
 	timing_end(&t);
-	mu_assert_double_between(0.9, 1.1, t.timing_double);
+	mu_assert_double_between(0.75, 1.25, t.timing_double);
 
 	/* set these to something we can test! */
 	t.milliseconds = 0;

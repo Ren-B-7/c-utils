@@ -195,11 +195,23 @@ char* fs_resolve_path(const char* path)
 
 	char* new_path = NULL;
 	char* tmp = __str_duplicate(path);
+	if (tmp == NULL) {
+		return NULL;
+	}
 	int pos = __str_find_reverse(tmp, FS_PATH_SEPARATOR);
 
 	if (pos == -1) {
 		char* cwd = fs_cwd();
+		if (cwd == NULL) {
+			free(tmp);
+			return NULL;
+		}
 		new_path = (char*) calloc(strlen(cwd) + 2 + strlen(path), sizeof(char));
+		if (new_path == NULL) {
+			free(cwd);
+			free(tmp);
+			return NULL;
+		}
 		snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s%c%s", cwd,
 		 FS_PATH_SEPARATOR, path);
 		free(cwd);
@@ -217,21 +229,27 @@ char* fs_resolve_path(const char* path)
 			                                                     x2
 			                                                     and
 			                                                     \0 */
-			snprintf(new_path, p_len + 2 + t_len, "%s%c%s", p,
+			if (new_path == NULL) {
+				free(p);
+				free(tmp);
+				return NULL;
+			}
+			snprintf(new_path, p_len + t_len + 2, "%s%c%s", p,
 			 FS_PATH_SEPARATOR, s);
 			free(p);
 			break;
 		}
 		int tmp_pos = __str_find_reverse(tmp, FS_PATH_SEPARATOR);
-		pos[tmp] = FS_PATH_SEPARATOR;
+		tmp[pos] = FS_PATH_SEPARATOR;
 		pos = tmp_pos;
 	}
 	free(tmp);
 
-	/* ensure no trailing FS_PATH_SEPARATOR */
-	int len = strlen(new_path);
-	if (new_path[len - 1] == FS_PATH_SEPARATOR) {
-		new_path[len - 1] = '\0';
+	if (new_path != NULL) {
+		int len = strlen(new_path);
+		if (new_path[len - 1] == FS_PATH_SEPARATOR) {
+			new_path[len - 1] = '\0';
+		}
 	}
 
 	return new_path;
@@ -271,6 +289,9 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
 		                   and
 		                   NULL
 		                 */
+		if (res == NULL) {
+			return NULL;
+		}
 	}
 
 	strcpy(res, path);
@@ -291,6 +312,10 @@ char* fs_cwd(void)
 	while (getcwd(buf, malsize) == NULL && errno == ERANGE) {
 		malsize *= 2;
 		char* tmp = (char*) realloc(buf, malsize * sizeof(char));
+		if (tmp == NULL) {
+			free(buf);
+			return NULL;
+		}
 		buf = tmp;
 	}
 	return buf;
@@ -392,10 +417,13 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode)
 	/* add a trailing FS_PATH_SEPARATOR for the loop to work! */
 	len = strlen(new_path);
 	char* tmp = (char*) realloc(new_path, len + 2);
-	tmp[len] = FS_PATH_SEPARATOR;
-	tmp[len + 1] = '\0';
+	if (tmp == NULL) {
+		free(new_path);
+		return FS_FAILURE;
+	}
 	new_path = tmp;
-	tmp = NULL;
+	new_path[len] = FS_PATH_SEPARATOR;
+	new_path[len + 1] = '\0';
 
 	char* p;
 	for (p = strchr(new_path + 1, FS_PATH_SEPARATOR); p != NULL;
@@ -526,6 +554,9 @@ char* fs_mode_to_string_alt(mode_t mode, char* res)
 	char* tmp;
 	if (res == NULL) {
 		tmp = (char*) calloc(11, sizeof(char));
+		if (tmp == NULL) {
+			return NULL;
+		}
 	} else {
 		tmp = res;
 	}
@@ -584,6 +615,9 @@ file_t f_init(const char* filepath)
 	}
 
 	file_t f = (file_t) calloc(1, sizeof(file_struct));
+	if (f == NULL) {
+		return NULL;
+	}
 	/* set the defaults */
 	f->filename = NULL;
 	f->extension = NULL;
@@ -696,6 +730,9 @@ const char* f_read_file(file_t f)
 	 (char*) calloc(blen + flen + 2, sizeof(char)); /* FS_PATH_SEPARATOR
 	                                                   and '\0'
 	                                                 */
+	if (full_path == NULL) {
+		return NULL;
+	}
 	strcpy(full_path, f->basepath);
 	full_path[blen] = FS_PATH_SEPARATOR;
 	strcpy(full_path + blen + 1, f->filename);
@@ -708,6 +745,10 @@ const char* f_read_file(file_t f)
 	free(full_path);
 
 	f->buffer = (char*) calloc(f->filesize + 1, sizeof(char));
+	if (f->buffer == NULL) {
+		fclose(fobj);
+		return NULL;
+	}
 	size_t read = fread(f->buffer, sizeof(char), f->filesize, fobj);
 	if (read != f->filesize) {
 		fclose(fobj);
@@ -743,6 +784,9 @@ dir_t d_init(const char* path)
 	}
 
 	dir_t d = (dir_t) calloc(1, sizeof(dir_struct));
+	if (d == NULL) {
+		return NULL;
+	}
 	d->full_path = fs_resolve_path(path);
 	d->num_subitems = 0;
 	d->num_subfiles = 0;
@@ -845,6 +889,23 @@ int d_update_list(dir_t d)
 	d->subdirs = (char**) calloc(d->num_subitems, sizeof(char*));
 	d->subdirs_fullpath = (char**) calloc(d->num_subitems, sizeof(char*));
 
+	if (d->subitems_fullpath == NULL || d->subfiles == NULL ||
+	 d->subfiles_fullpath == NULL || d->subdirs == NULL ||
+	 d->subdirs_fullpath == NULL) {
+		/* Clean up any that did succeed */
+		free(d->subitems_fullpath);
+		free(d->subfiles);
+		free(d->subfiles_fullpath);
+		free(d->subdirs);
+		free(d->subdirs_fullpath);
+		d->subitems_fullpath = NULL;
+		d->subfiles = NULL;
+		d->subfiles_fullpath = NULL;
+		d->subdirs = NULL;
+		d->subdirs_fullpath = NULL;
+		return FS_FAILURE;
+	}
+
 	char full_path[2048] = {0};
 	for (i = 0; i < d->num_subitems; ++i) {
 		fs_combine_filepath_alt(d->full_path, d->subitems[i], full_path);
@@ -863,15 +924,20 @@ int d_update_list(dir_t d)
 	}
 
 	/* reduce the memory needed for subfiles and subdirs */
-	char** t = (char**) realloc(d->subdirs, sizeof(char*) * (d->num_subdirs));
+	char** t = realloc(d->subdirs, sizeof(char*) * (d->num_subdirs));
+	if (t == NULL) return FS_FAILURE;
 	d->subdirs = t;
-	char** q =
-	 (char**) realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs));
+
+	char** q = realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs));
+	if (q == NULL) return FS_FAILURE;
 	d->subdirs_fullpath = q;
-	char** s = (char**) realloc(d->subfiles, sizeof(char*) * (d->num_subfiles));
+
+	char** s = realloc(d->subfiles, sizeof(char*) * (d->num_subfiles));
+	if (s == NULL) return FS_FAILURE;
 	d->subfiles = s;
-	char** w =
-	 (char**) realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles));
+
+	char** w = realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles));
+	if (w == NULL) return FS_FAILURE;
 	d->subfiles_fullpath = w;
 
 	return FS_SUCCESS;
@@ -954,6 +1020,9 @@ static char** __fs_list_dir(const char* path, int* elms)
 	int growth_num = 10;
 	int cur_size = growth_num;
 	char** paths = (char**) calloc(cur_size, sizeof(char*));
+	if (paths == NULL) {
+		return NULL;
+	}
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || \
  defined(_WIN64)
@@ -1051,6 +1120,9 @@ static char* __str_extract_substring(const char* s, size_t start, size_t length)
 	}
 
 	char* ret = (char*) calloc(length + 1, sizeof(char));
+	if (ret == NULL) {
+		return NULL;
+	}
 	strncpy(ret, s + start, length);
 	return ret;
 }
@@ -1066,6 +1138,9 @@ static char** __str_split_string_any(char* s, const char* s2, size_t* num)
 
 	size_t max_size = __str_find_cnt_any(s, find);
 	char** results = (char**) calloc(max_size + 1, sizeof(char*));
+	if (results == NULL) {
+		return NULL;
+	}
 	char* loc = s;
 	int cnt = 0;
 	int len = __str_find_any(loc, find);
@@ -1105,7 +1180,7 @@ static int __str_find_any(const char* s, const char* s2)
 static size_t __str_find_cnt_any(const char* s, const char* s2)
 {
 	size_t res = 0;
-	const char* loc = strpbrk((char*) s, s2);
+	const char* loc = strpbrk(s, s2);
 	while (loc != NULL) {
 		++res;
 		loc = strpbrk(loc + 1, s2);
@@ -1172,6 +1247,5 @@ static char* __clean_path(const char* path)
 		clean_path[len - 1] = '\0';
 		len--;
 	}
-
-	return clean_path;
+return clean_path;
 }

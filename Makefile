@@ -211,10 +211,6 @@ clean:
 	# Remove all files in DISTDIR and LIBDIR
 	@ if [ -d "$(CURDIR)/$(DISTDIR)/" ]; then rm -f $(CURDIR)/$(DISTDIR)/*; fi
 	@ if [ -d "$(CURDIR)/$(LIBDIR)/" ]; then rm -f $(CURDIR)/$(LIBDIR)/*; fi
-	# Remove coverage files
-	@ rm -f $(CURDIR)/*.gcno
-	@ rm -f $(CURDIR)/*.gcda
-	@ rm -f $(CURDIR)/*.gcov
 	@ echo "Clean complete."
 
 # --- Format files ---

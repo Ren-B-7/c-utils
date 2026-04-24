@@ -432,24 +432,31 @@ g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size)
 	/* we will use a bitarray to track which vertices have been visited */
 	char* bitarray =
 	 (char*) calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
+	if (ret == NULL || bitarray == NULL) {
+		free(ret);
+		free(bitarray);
+		*size = 0;
+		return NULL;
+	}
 	unsigned int id = g_vertex_id(v);
+	unsigned int pos = 0;
+	unsigned int cur_pos = 0;
 	SET_BIT(bitarray, id);
-
-	int cur_pos = 0, pos = 0;
 	ret[pos++] = id;
 
-	edge_t e;
-	unsigned int i;
 	while (cur_pos != pos) { /* this signifies that we have hit the end */
 		vertex_t ver = g_vertex_get(g, ret[cur_pos]);
-		g_iterate_edges(ver, e, i)
-		{
-			id = g_edge_dest(e);
-			if (CHECK_BIT(bitarray, id) != 0) {
+		for (unsigned int i = 0; i < g_vertex_num_edges_out(ver); i++) {
+			edge_t e = g_vertex_edge(ver, i);
+			if (e == NULL) {
+				continue;
+			}
+			unsigned int edge_dest_id = g_edge_dest(e);
+			if (CHECK_BIT(bitarray, edge_dest_id) != 0) {
 				continue; /* already visited */
 			}
-			SET_BIT(bitarray, id);
-			ret[pos++] = id;
+			SET_BIT(bitarray, edge_dest_id);
+			ret[pos++] = edge_dest_id;
 		}
 		++cur_pos;
 	}
@@ -458,7 +465,6 @@ g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size)
 	*size = pos;
 	return ret;
 }
-
 unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size)
 {
 	*size = 0;
@@ -466,6 +472,11 @@ unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size)
 	 (unsigned int*) calloc(g_num_vertices(g), sizeof(unsigned int));
 	char* bitarray =
 	 (char*) calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
+	if (ret == NULL || bitarray == NULL) {
+		free(ret);
+		free(bitarray);
+		return NULL;
+	}
 	unsigned int id = g_vertex_id(v);
 	SET_BIT(bitarray, id);
 	ret[0] = id;
@@ -479,12 +490,12 @@ static void __traverse_depth_first(graph_t g, unsigned int* res, char* bitarray,
  unsigned int* size)
 {
 	vertex_t v = g_vertex_get(g, res[*size - 1]);
-	// cppcheck-suppress variableScope
-	edge_t e;
-	unsigned int i, id;
-	g_iterate_edges(v, e, i)
-	{
-		id = g_edge_dest(e);
+	for (unsigned int i = 0; i < g_vertex_num_edges_out(v); i++) {
+		edge_t e = g_vertex_edge(v, i);
+		if (e == NULL) {
+			continue;
+		}
+		unsigned int id = g_edge_dest(e);
 		if (CHECK_BIT(bitarray, id) != 0) {
 			continue; /* already visited */
 		}

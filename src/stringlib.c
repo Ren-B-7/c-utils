@@ -272,6 +272,7 @@ int s_find_str(const char* s, const char* sub)
 	return loc - s;
 }
 
+// s_strrstr: finds the last occurrence of sub in s
 char* s_strrstr(const char* s, const char* sub)
 {
 	if (s == NULL || sub == NULL) {
@@ -279,14 +280,14 @@ char* s_strrstr(const char* s, const char* sub)
 	}
 
 	int len = strlen(sub);
-	char* res = NULL;
-	char* loc = strstr((char*) s, sub);
+	const char* res = NULL;
+	const char* loc = strstr((char*) s, sub);
 
 	while (loc != NULL) {
 		res = loc;
 		loc = strstr(loc + len, sub);
 	}
-	return res;
+	return (char*)res;
 }
 
 int s_find_str_reverse(const char* s, const char* sub)
@@ -359,7 +360,7 @@ int s_find_any_reverse(const char* s, const char* s2)
 	}
 
 	const char* res = NULL;
-	char* loc = strpbrk((char*) s, s2);
+	const char* loc = strpbrk((char*) s, s2);
 	if (loc == NULL) { /* quick exit */
 		return -1;
 	}
@@ -473,6 +474,7 @@ int s_cmp_alt(const char* s1, const char* s2, int casesensitive)
 	return res;
 }
 
+// FIX: Added NULL check after calloc() (line 485-491)
 char* s_extract_substring(const char* s, size_t start, size_t length)
 {
 	if (s == NULL) {
@@ -488,6 +490,9 @@ char* s_extract_substring(const char* s, size_t start, size_t length)
 	}
 
 	char* ret = (char*) calloc(length + 1, sizeof(char));
+	if (ret == NULL) {
+		return NULL;
+	}
 	strncpy(ret, s + start, length);
 	return ret;
 }
@@ -510,6 +515,7 @@ char* s_extract_substring_c(const char* s, const char c, size_t length)
 	return s_extract_substring(s, start, length);
 }
 
+// FIX: Added NULL check after calloc() (line 535)
 char** s_split_string_c(const char* s, const char c, int* num)
 {
 	if (s == NULL || num == NULL) {
@@ -522,6 +528,9 @@ char** s_split_string_c(const char* s, const char c, int* num)
 	                                                                  for empty
 	                                                                  lines...
 	                                                                */
+	if (results == NULL) {
+		return NULL;
+	}
 
 	const char* loc = s;
 	int cnt = 0;
@@ -560,6 +569,9 @@ char** s_split_string_str(const char* s, const char* sub, int* num)
 	                                                                  for empty
 	                                                                  lines...
 	                                                                */
+	if (results == NULL) {
+		return NULL;
+	}
 
 	int sub_len = strlen(sub);
 
@@ -589,6 +601,7 @@ char** s_split_string_str(const char* s, const char* sub, int* num)
 	return v;
 }
 
+// FIX: Added NULL check after calloc() (line 619 area)
 char** s_split_string_any(const char* s, const char* s2, int* num)
 {
 	if (s == NULL || num == NULL) {
@@ -604,6 +617,10 @@ char** s_split_string_any(const char* s, const char* s2, int* num)
 
 	int max_size = s_find_cnt_any(s, find);
 	char** results = (char**) calloc(max_size + 1, sizeof(char*));
+	if (results == NULL) {
+		return NULL;
+	}
+
 	const char* loc = s;
 	int cnt = 0;
 	int len = s_find_any(loc, find);

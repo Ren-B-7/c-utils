@@ -18,6 +18,9 @@ typedef struct __doubly_linked_list {
 dllist_t dll_init(void)
 {
 	dllist_t l = (dllist_t) calloc(1, sizeof(doubly_linked_list));
+	if (l == NULL) {
+		return NULL;
+	}
 	l->head = NULL;
 	l->tail = NULL;
 	l->elms = 0;

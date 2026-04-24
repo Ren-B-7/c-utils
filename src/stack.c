@@ -17,6 +17,9 @@ typedef struct __linked_list {
 stack_list_t stk_init(void)
 {
 	stack_list_t stk = (stack_list_t) calloc(1, sizeof(linked_list));
+	if (stk == NULL) {
+		return NULL;
+	}
 	stk->head = NULL;
 	stk->elms = 0;
 	return stk;

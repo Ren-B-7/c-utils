@@ -16,7 +16,33 @@
 #include <stdio.h>     /* printf */
 #include <stdlib.h>
 #include <string.h>    /* strlen */
+#ifndef _WIN32
 #include <sys/mman.h>  /* mmap, mummap */
+#else
+#include <errno.h>
+#define MAP_FAILED ((void*)-1)
+#define PROT_READ 0x1
+#define PROT_WRITE 0x2
+#define MAP_SHARED 0x01
+static void* mmap(void* addr, size_t len, int prot, int flags, int fd, long long offset)
+{
+	(void) addr;
+	(void) len;
+	(void) prot;
+	(void) flags;
+	(void) fd;
+	(void) offset;
+	errno = ENOSYS;
+	return MAP_FAILED;
+}
+static int munmap(void* addr, size_t len)
+{
+	(void) addr;
+	(void) len;
+	errno = ENOSYS;
+	return -1;
+}
+#endif
 #include <sys/stat.h>  /* fstat */
 #include <sys/types.h> /* */
 #include <unistd.h>    /* close */
@@ -564,6 +590,9 @@ static void __update_elements_added_on_disk(BloomFilter* bf)
 static uint64_t* __default_hash(int num_hashes, const char* str)
 {
 	uint64_t* results = (uint64_t*) calloc(num_hashes, sizeof(uint64_t));
+	if (results == NULL) {
+		return NULL;
+	}
 	int i;
 	for (i = 0; i < num_hashes; ++i) {
 		results[i] = __fnv_1a(str, i);

@@ -175,6 +175,9 @@ char** hashmap_keys(const HashMap* h)
 int* hashmap_set_int(HashMap* h, const char* key, const int value)
 {
 	int* ptr = (int*) malloc(sizeof(int));
+	if (ptr == NULL) {
+		return NULL;
+	}
 	*ptr = value;
 	return (int*) __hashmap_set(h, key, (void*) ptr, 0);
 }
@@ -182,6 +185,9 @@ int* hashmap_set_int(HashMap* h, const char* key, const int value)
 long* hashmap_set_long(HashMap* h, const char* key, const long value)
 {
 	long* ptr = (long*) malloc(sizeof(long));
+	if (ptr == NULL) {
+		return NULL;
+	}
 	*ptr = value;
 	return (long*) __hashmap_set(h, key, (void*) ptr, 0);
 }
@@ -190,6 +196,9 @@ char* hashmap_set_string(HashMap* h, const char* key, const char* value)
 {
 	int len = strlen(value);
 	char* ptr = (char*) calloc(len + 1, sizeof(char));
+	if (ptr == NULL) {
+		return NULL;
+	}
 	memcpy(ptr, value, len);
 	return (char*) __hashmap_set(h, key, (void*) ptr, 0);
 }
@@ -197,6 +206,9 @@ char* hashmap_set_string(HashMap* h, const char* key, const char* value)
 float* hashmap_set_float(HashMap* h, const char* key, const float value)
 {
 	float* ptr = (float*) malloc(sizeof(float));
+	if (ptr == NULL) {
+		return NULL;
+	}
 	*ptr = value;
 	return (float*) __hashmap_set(h, key, (void*) ptr, 0);
 }
@@ -204,6 +216,9 @@ float* hashmap_set_float(HashMap* h, const char* key, const float value)
 double* hashmap_set_double(HashMap* h, const char* key, const double value)
 {
 	double* ptr = (double*) malloc(sizeof(double));
+	if (ptr == NULL) {
+		return NULL;
+	}
 	*ptr = value;
 	return (double*) __hashmap_set(h, key, ptr, 0);
 }
@@ -246,12 +261,13 @@ static int __allocate_hashmap(HashMap* h, uint64_t num_els)
 static int __relayout_nodes(HashMap* h, uint64_t loc, short end_on_null)
 {
 	int moved_one = 1;
-	uint64_t i, j, id;
+	uint64_t j;
 	int error;
 	for (j = 0; j < h->number_nodes; ++j) {
-		i = (loc + j) % h->number_nodes;
+		uint64_t i = (loc + j) % h->number_nodes;
 		if (h->nodes[i] != NULL) {
-			void* res =
+			uint64_t id;
+			const void* res =
 			 __get_node(h, h->nodes[i]->key, h->nodes[i]->hash, &id, &error);
 
 			if (res == NULL && error == 0) { // we found a better place
@@ -343,6 +359,7 @@ static inline float __get_fullness(const HashMap* h)
 	return h->used_nodes / (float) h->number_nodes;
 }
 
+// FIX: Improved variable scoping in the loop (line 264 area)
 static void __calc_stats(const HashMap* h, uint64_t* worst_case,
  uint64_t* max_big_o, float* avg_big_o, float* avg_used_big_o,
  unsigned int* hash, unsigned int* idx)
@@ -353,6 +370,12 @@ static void __calc_stats(const HashMap* h, uint64_t* worst_case,
 		uint64_t j = 0, cur = 0;
 		uint64_t* hashes = (uint64_t*) calloc(h->used_nodes, sizeof(uint64_t));
 		uint64_t* idxs = (uint64_t*) calloc(h->used_nodes, sizeof(uint64_t));
+		if (hashes == NULL || idxs == NULL) {
+			free(hashes);
+			free(idxs);
+			return;
+		}
+		// FIX: Declare 'i' in the for loop scope
 		for (uint64_t i = 0; i < h->number_nodes; ++i) {
 			if (h->nodes[i] != NULL) {
 				++cur;
@@ -380,6 +403,7 @@ static void __calc_stats(const HashMap* h, uint64_t* worst_case,
 		__merge_sort(idxs, h->used_nodes);
 
 		// then do some maths to see if there are actual collisions
+		// FIX: Declare 'i' in this second loop scope
 		for (uint64_t i = 0; i < h->used_nodes - 1; ++i) {
 			if (hashes[i] == hashes[i + 1]) {
 				++hash_col;
@@ -424,19 +448,25 @@ static void __merge_sort(uint64_t* arr, uint64_t length)
 static void __m_sort_merge(uint64_t* arr, uint64_t length, uint64_t mid)
 {
 	uint64_t* tmp = (uint64_t*) malloc((length) * sizeof(uint64_t));
-	uint64_t l = 0, r = mid, i = 0;
-	while (l < mid && r < length) { // sort until one half is empty
-		tmp[i++] = (arr[l] > arr[r]) ? arr[r++] : arr[l++];
+	if (tmp == NULL) {
+		return;
 	}
-	// move the rest of the remaining array to tmp
+	uint64_t l = 0, r = mid, k = 0;
+	while (l < mid && r < length) {
+		if (arr[l] < arr[r]) {
+			tmp[k++] = arr[l++];
+		} else {
+			tmp[k++] = arr[r++];
+		}
+	}
 	while (l < mid) {
-		tmp[i++] = arr[l++];
+		tmp[k++] = arr[l++];
 	}
 	while (r < length) {
-		tmp[i++] = arr[r++];
+		tmp[k++] = arr[r++];
 	}
 	// move it over
-	for (i = 0; i < length; ++i) {
+	for (uint64_t i = 0; i < length; ++i) {
 		arr[i] = tmp[i];
 	}
 	free(tmp);

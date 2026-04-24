@@ -18,6 +18,9 @@ typedef struct __doubly_linked_list {
 queue_list_t q_init(void)
 {
 	queue_list_t q = (queue_list_t) calloc(1, sizeof(doubly_linked_list));
+	if (q == NULL) {
+		return NULL;
+	}
 	q->head = NULL;
 	q->tail = NULL;
 	q->elms = 0;
