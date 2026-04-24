@@ -287,7 +287,7 @@ char* s_strrstr(const char* s, const char* sub)
 		res = loc;
 		loc = strstr(loc + len, sub);
 	}
-	return (char*)res;
+	return (char*) res;
 }
 
 int s_find_str_reverse(const char* s, const char* sub)

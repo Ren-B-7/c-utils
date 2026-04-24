@@ -925,19 +925,27 @@ int d_update_list(dir_t d)
 
 	/* reduce the memory needed for subfiles and subdirs */
 	char** t = realloc(d->subdirs, sizeof(char*) * (d->num_subdirs));
-	if (t == NULL) return FS_FAILURE;
+	if (t == NULL) {
+		return FS_FAILURE;
+	}
 	d->subdirs = t;
 
 	char** q = realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs));
-	if (q == NULL) return FS_FAILURE;
+	if (q == NULL) {
+		return FS_FAILURE;
+	}
 	d->subdirs_fullpath = q;
 
 	char** s = realloc(d->subfiles, sizeof(char*) * (d->num_subfiles));
-	if (s == NULL) return FS_FAILURE;
+	if (s == NULL) {
+		return FS_FAILURE;
+	}
 	d->subfiles = s;
 
 	char** w = realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles));
-	if (w == NULL) return FS_FAILURE;
+	if (w == NULL) {
+		return FS_FAILURE;
+	}
 	d->subfiles_fullpath = w;
 
 	return FS_SUCCESS;
@@ -1247,5 +1255,5 @@ static char* __clean_path(const char* path)
 		clean_path[len - 1] = '\0';
 		len--;
 	}
-return clean_path;
+	return clean_path;
 }

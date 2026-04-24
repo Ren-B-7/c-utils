@@ -87,15 +87,18 @@ void test_dllist_basic_operations()
 		if (count == 0) {
 			assert(strcmp(current_person->name, "Alice") == 0 &&
 			 current_person->id == 1);
-			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id,
+			 current_person->name, current_person->age);
 		} else if (count == 1) {
 			assert(strcmp(current_person->name, "Bob") == 0 &&
 			 current_person->id == 2);
-			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id,
+			 current_person->name, current_person->age);
 		} else if (count == 2) {
 			assert(strcmp(current_person->name, "Charlie") == 0 &&
 			 current_person->id == 3);
-			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id,
+			 current_person->name, current_person->age);
 		}
 		count++;
 	}
@@ -111,15 +114,18 @@ void test_dllist_basic_operations()
 		if (count == 0) {
 			assert(strcmp(current_person->name, "Charlie") == 0 &&
 			 current_person->id == 3);
-			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id,
+			 current_person->name, current_person->age);
 		} else if (count == 1) {
 			assert(strcmp(current_person->name, "Bob") == 0 &&
 			 current_person->id == 2);
-			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id,
+			 current_person->name, current_person->age);
 		} else if (count == 2) {
 			assert(strcmp(current_person->name, "Alice") == 0 &&
 			 current_person->id == 1);
-			printf("  - %d: %s (Age: %d)\n", current_person->id, current_person->name, current_person->age);
+			printf("  - %d: %s (Age: %d)\n", current_person->id,
+			 current_person->name, current_person->age);
 		}
 		count++;
 	}
@@ -134,7 +140,8 @@ void test_dllist_basic_operations()
 
 	// Test dll_search by Name
 	char* search_name_charlie = "Charlie";
-	dll_node* found_node_name = dll_search(l, search_name_charlie, find_person_by_name);
+	dll_node* found_node_name =
+	 dll_search(l, search_name_charlie, find_person_by_name);
 	assert(found_node_name != NULL);
 	assert(strcmp(((person_t*) found_node_name->data)->name, "Charlie") == 0);
 	printf("Found Charlie by name \"%s\".\n", search_name_charlie);
@@ -148,21 +155,24 @@ void test_dllist_basic_operations()
 
 	// Test removal from the beginning
 	person_t* removed_p1 = (person_t*) dll_remove(l, 0);
-	assert(removed_p1 != NULL && removed_p1->id == 1 && strcmp(removed_p1->name, "Alice") == 0);
+	assert(removed_p1 != NULL && removed_p1->id == 1 &&
+	 strcmp(removed_p1->name, "Alice") == 0);
 	assert(dll_num_elements(l) == 2);
 	printf("Removed Alice (ID: %d) from the beginning.\n", removed_p1->id);
 	free(removed_p1); // Free the data
 
 	// Test removal from the end
 	person_t* removed_p3 = (person_t*) dll_remove(l, -1); // -1 for end
-	assert(removed_p3 != NULL && removed_p3->id == 3 && strcmp(removed_p3->name, "Charlie") == 0);
+	assert(removed_p3 != NULL && removed_p3->id == 3 &&
+	 strcmp(removed_p3->name, "Charlie") == 0);
 	assert(dll_num_elements(l) == 1);
 	printf("Removed Charlie (ID: %d) from the end.\n", removed_p3->id);
 	free(removed_p3);
 
 	// Test removal from middle (Bob is now at index 0)
 	person_t* removed_p2 = (person_t*) dll_remove(l, 0);
-	assert(removed_p2 != NULL && removed_p2->id == 2 && strcmp(removed_p2->name, "Bob") == 0);
+	assert(removed_p2 != NULL && removed_p2->id == 2 &&
+	 strcmp(removed_p2->name, "Bob") == 0);
 	assert(dll_num_elements(l) == 0);
 	printf("Removed Bob (ID: %d) from the middle.\n", removed_p2->id);
 	free(removed_p2);
@@ -171,7 +181,8 @@ void test_dllist_basic_operations()
 	assert(dll_remove(l, 0) == NULL);
 	printf("Verified removing from empty list returns NULL.\n");
 
-	// Free the list structure itself (nodes are freed, but not the data pointers)
+	// Free the list structure itself (nodes are freed, but not the data
+	// pointers)
 	dll_free(l);
 	printf("Doubly linked list structure freed.\n");
 	printf("--- Doubly Linked List Operations Example Finished ---\n");

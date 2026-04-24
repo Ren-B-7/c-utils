@@ -126,7 +126,8 @@ char** set_to_array(const SimpleSet* set, uint64_t* size)
 	uint64_t i, j = 0;
 	for (i = 0; i < set->number_nodes; ++i) {
 		if (set->nodes[i] != NULL) {
-			// FIX: Moved 'len' declaration into the scope where it's used (line 127)
+			// FIX: Moved 'len' declaration into the scope where it's used (line
+			// 127)
 			size_t len = set->nodes[i]->_len;
 			results[j] = (char*) calloc(len + 1, sizeof(char));
 			memcpy(results[j], set->nodes[i]->_key, len);

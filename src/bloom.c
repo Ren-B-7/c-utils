@@ -11,20 +11,22 @@
 
 #include "bloom.h"
 
-#include <fcntl.h>     /* O_RDWR */
-#include <math.h>      /* pow, exp */
-#include <stdio.h>     /* printf */
+#include <fcntl.h>    /* O_RDWR */
+#include <math.h>     /* pow, exp */
+#include <stdio.h>    /* printf */
 #include <stdlib.h>
-#include <string.h>    /* strlen */
+#include <string.h>   /* strlen */
 #ifndef _WIN32
-#include <sys/mman.h>  /* mmap, mummap */
+#include <sys/mman.h> /* mmap, mummap */
 #else
 #include <errno.h>
-#define MAP_FAILED ((void*)-1)
+#define MAP_FAILED ((void*) -1)
 #define PROT_READ 0x1
 #define PROT_WRITE 0x2
 #define MAP_SHARED 0x01
-static void* mmap(void* addr, size_t len, int prot, int flags, int fd, long long offset)
+
+static void*
+mmap(void* addr, size_t len, int prot, int flags, int fd, long long offset)
 {
 	(void) addr;
 	(void) len;
@@ -35,6 +37,7 @@ static void* mmap(void* addr, size_t len, int prot, int flags, int fd, long long
 	errno = ENOSYS;
 	return MAP_FAILED;
 }
+
 static int munmap(void* addr, size_t len)
 {
 	(void) addr;

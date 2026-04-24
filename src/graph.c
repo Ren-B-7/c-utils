@@ -465,6 +465,7 @@ g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size)
 	*size = pos;
 	return ret;
 }
+
 unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size)
 {
 	*size = 0;

@@ -18,8 +18,8 @@
 extern "C" {
 #endif
 
-#include <stddef.h>
 #include <inttypes.h> /* PRIu64 */
+#include <stddef.h>
 
 #ifdef __APPLE__
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

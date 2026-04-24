@@ -3,9 +3,9 @@
 
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 
 #define RESULT_MSG_LEN 256
 
