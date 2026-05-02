@@ -18,17 +18,17 @@
 #define MAX_FULLNESS_RATIO 0.25 /* arbitrary */
 
 /* PRIVATE FUNCTIONS */
-static uint64_t __default_hash(const char* key, key_size_tt len);
-static int __get_index(const SimpleSet* set, const char* key, key_size_tt len,
+static uint64_t _set_default_hash(const char* key, key_size_tt len);
+static int _set_get_index(const SimpleSet* set, const char* key, key_size_tt len,
  uint64_t hash, uint64_t* index);
-static int __assign_node(SimpleSet* set, const char* key, key_size_tt len,
+static int _set_assign_node(SimpleSet* set, const char* key, key_size_tt len,
  uint64_t hash, uint64_t index);
-static void __free_index(SimpleSet* set, uint64_t index);
-static int __set_contains(const SimpleSet* set, const char* key,
+static void _set_free_index(SimpleSet* set, uint64_t index);
+static int _set_contains(const SimpleSet* set, const char* key,
  key_size_tt len, uint64_t hash);
 static int
-__set_add(SimpleSet* set, const char* key, key_size_tt len, uint64_t hash);
-static int __relayout_nodes(SimpleSet* set, uint64_t start, short end_on_null);
+_set_add(SimpleSet* set, const char* key, key_size_tt len, uint64_t hash);
+static int _set_relayout_nodes(SimpleSet* set, uint64_t start, short end_on_null);
 
 /*******************************************************************************
 ***        FUNCTIONS DEFINITIONS
@@ -46,7 +46,7 @@ int set_init_alt(SimpleSet* set, uint64_t num_els, set_hash_function hash)
 		set->nodes[i] = NULL;
 	}
 	set->used_nodes = 0;
-	set->hash_function = (hash == NULL) ? &__default_hash : hash;
+	set->hash_function = (hash == NULL) ? &_set_default_hash : hash;
 	return SET_TRUE;
 }
 
@@ -55,7 +55,7 @@ int set_clear(SimpleSet* set)
 	uint64_t i;
 	for (i = 0; i < set->number_nodes; ++i) {
 		if (set->nodes[i] != NULL) {
-			__free_index(set, i);
+			_set_free_index(set, i);
 		}
 	}
 	set->used_nodes = 0;
@@ -65,7 +65,7 @@ int set_clear(SimpleSet* set)
 int set_destroy(SimpleSet* set)
 {
 	set_clear(set);
-	free(set->nodes);
+	free((void*)set->nodes);
 	set->number_nodes = 0;
 	set->used_nodes = 0;
 	set->hash_function = NULL;
@@ -75,7 +75,7 @@ int set_destroy(SimpleSet* set)
 int set_add(SimpleSet* set, const char* key, key_size_tt len)
 {
 	uint64_t hash = set->hash_function(key, len);
-	return __set_add(set, key, len, hash);
+	return _set_add(set, key, len, hash);
 }
 
 int set_add_str(SimpleSet* set, const char* key)
@@ -86,7 +86,7 @@ int set_add_str(SimpleSet* set, const char* key)
 int set_contains(const SimpleSet* set, const char* key, key_size_tt len)
 {
 	uint64_t index, hash = set->hash_function(key, len);
-	return __get_index(set, key, len, hash, &index);
+	return _set_get_index(set, key, len, hash, &index);
 }
 
 int set_contains_str(const SimpleSet* set, const char* key)
@@ -97,14 +97,14 @@ int set_contains_str(const SimpleSet* set, const char* key)
 int set_remove(SimpleSet* set, const char* key, key_size_tt len)
 {
 	uint64_t index, hash = set->hash_function(key, len);
-	int pos = __get_index(set, key, len, hash, &index);
+	int pos = _set_get_index(set, key, len, hash, &index);
 	if (pos != SET_TRUE) {
 		return pos;
 	}
 	// remove this node
-	__free_index(set, index);
+	_set_free_index(set, index);
 	// re-layout nodes
-	__relayout_nodes(set, index, 0);
+	_set_relayout_nodes(set, index, 0);
 	--set->used_nodes;
 	return SET_TRUE;
 }
@@ -144,13 +144,13 @@ int set_union(SimpleSet* res, const SimpleSet* s1, const SimpleSet* s2)
 	uint64_t i;
 	for (i = 0; i < s1->number_nodes; ++i) {
 		if (s1->nodes[i] != NULL) {
-			__set_add(res, s1->nodes[i]->_key, s1->nodes[i]->_len,
+			_set_add(res, s1->nodes[i]->_key, s1->nodes[i]->_len,
 			 s1->nodes[i]->_hash);
 		}
 	}
 	for (i = 0; i < s2->number_nodes; ++i) {
 		if (s2->nodes[i] != NULL) {
-			__set_add(res, s2->nodes[i]->_key, s2->nodes[i]->_len,
+			_set_add(res, s2->nodes[i]->_key, s2->nodes[i]->_len,
 			 s2->nodes[i]->_hash);
 		}
 	}
@@ -167,9 +167,9 @@ int set_intersection(SimpleSet* res, const SimpleSet* s1, const SimpleSet* s2)
 	uint64_t i;
 	for (i = 0; i < s1->number_nodes; ++i) {
 		if (s1->nodes[i] != NULL) {
-			if (__set_contains(s2, s1->nodes[i]->_key, s1->nodes[i]->_len,
+			if (_set_contains(s2, s1->nodes[i]->_key, s1->nodes[i]->_len,
 			     s1->nodes[i]->_hash) == SET_TRUE) {
-				__set_add(res, s1->nodes[i]->_key, s1->nodes[i]->_len,
+				_set_add(res, s1->nodes[i]->_key, s1->nodes[i]->_len,
 				 s1->nodes[i]->_hash);
 			}
 		}
@@ -187,9 +187,9 @@ int set_difference(SimpleSet* res, const SimpleSet* s1, const SimpleSet* s2)
 	uint64_t i;
 	for (i = 0; i < s1->number_nodes; ++i) {
 		if (s1->nodes[i] != NULL) {
-			if (__set_contains(s2, s1->nodes[i]->_key, s1->nodes[i]->_len,
+			if (_set_contains(s2, s1->nodes[i]->_key, s1->nodes[i]->_len,
 			     s1->nodes[i]->_hash) != SET_TRUE) {
-				__set_add(res, s1->nodes[i]->_key, s1->nodes[i]->_len,
+				_set_add(res, s1->nodes[i]->_key, s1->nodes[i]->_len,
 				 s1->nodes[i]->_hash);
 			}
 		}
@@ -207,9 +207,9 @@ int set_symmetric_difference(SimpleSet* res, const SimpleSet* s1,
 	// loop over set 1 and add elements that are unique to set 1
 	for (i = 0; i < s1->number_nodes; ++i) {
 		if (s1->nodes[i] != NULL) {
-			if (__set_contains(s2, s1->nodes[i]->_key, s1->nodes[i]->_len,
+			if (_set_contains(s2, s1->nodes[i]->_key, s1->nodes[i]->_len,
 			     s1->nodes[i]->_hash) != SET_TRUE) {
-				__set_add(res, s1->nodes[i]->_key, s1->nodes[i]->_len,
+				_set_add(res, s1->nodes[i]->_key, s1->nodes[i]->_len,
 				 s1->nodes[i]->_hash);
 			}
 		}
@@ -217,9 +217,9 @@ int set_symmetric_difference(SimpleSet* res, const SimpleSet* s1,
 	// loop over set 2 and add elements that are unique to set 2
 	for (i = 0; i < s2->number_nodes; ++i) {
 		if (s2->nodes[i] != NULL) {
-			if (__set_contains(s1, s2->nodes[i]->_key, s2->nodes[i]->_len,
+			if (_set_contains(s1, s2->nodes[i]->_key, s2->nodes[i]->_len,
 			     s2->nodes[i]->_hash) != SET_TRUE) {
-				__set_add(res, s2->nodes[i]->_key, s2->nodes[i]->_len,
+				_set_add(res, s2->nodes[i]->_key, s2->nodes[i]->_len,
 				 s2->nodes[i]->_hash);
 			}
 		}
@@ -232,7 +232,7 @@ int set_is_subset(const SimpleSet* test, const SimpleSet* against)
 	uint64_t i;
 	for (i = 0; i < test->number_nodes; ++i) {
 		if (test->nodes[i] != NULL) {
-			if (__set_contains(against, test->nodes[i]->_key,
+			if (_set_contains(against, test->nodes[i]->_key,
 			     test->nodes[i]->_len, test->nodes[i]->_hash) == SET_FALSE) {
 				return SET_FALSE;
 			}
@@ -272,7 +272,7 @@ int set_cmp(const SimpleSet* left, const SimpleSet* right)
 /*******************************************************************************
 ***        PRIVATE FUNCTIONS
 *******************************************************************************/
-static uint64_t __default_hash(const char* key, key_size_tt len)
+static uint64_t _set_default_hash(const char* key, key_size_tt len)
 {
 	// FNV-1a hash (http://www.isthe.com/chongo/tech/comp/fnv/)
 	uint64_t h = 14695981039346656037ULL; // FNV_OFFSET 64 bit
@@ -283,27 +283,27 @@ static uint64_t __default_hash(const char* key, key_size_tt len)
 	return h;
 }
 
-static int __set_contains(const SimpleSet* set, const char* key,
+static int _set_contains(const SimpleSet* set, const char* key,
  key_size_tt len, uint64_t hash)
 {
 	uint64_t index;
-	return __get_index(set, key, len, hash, &index);
+	return _set_get_index(set, key, len, hash, &index);
 }
 
 static int
-__set_add(SimpleSet* set, const char* key, key_size_tt len, uint64_t hash)
+_set_add(SimpleSet* set, const char* key, key_size_tt len, uint64_t hash)
 {
 	uint64_t index;
-	if (__set_contains(set, key, len, hash) == SET_TRUE) {
+	if (_set_contains(set, key, len, hash) == SET_TRUE) {
 		return SET_ALREADY_PRESENT;
 	}
 
 	// Expand nodes if we are close to our desired fullness
-	if ((float) set->used_nodes / set->number_nodes > MAX_FULLNESS_RATIO) {
+	if (set->used_nodes * 4 > set->number_nodes) {
 		uint64_t num_els = set->number_nodes * 2; // we want to double each time
 		simple_set_node** tmp = (simple_set_node**) realloc(set->nodes,
 		 num_els * sizeof(simple_set_node*));
-		if (tmp == NULL || set->nodes == NULL) { // malloc failure
+		if (tmp == NULL) { // malloc failure
 			return SET_MALLOC_ERROR;
 		}
 
@@ -315,19 +315,19 @@ __set_add(SimpleSet* set, const char* key, key_size_tt len, uint64_t hash)
 
 		set->number_nodes = num_els;
 		// re-layout all nodes
-		__relayout_nodes(set, 0, 1);
+		_set_relayout_nodes(set, 0, 1);
 	}
 	// add element in
-	int res = __get_index(set, key, len, hash, &index);
+	int res = _set_get_index(set, key, len, hash, &index);
 	if (res == SET_FALSE) { // this is the first open slot
-		__assign_node(set, key, len, hash, index);
+		_set_assign_node(set, key, len, hash, index);
 		++set->used_nodes;
 		return SET_TRUE;
 	}
 	return res;
 }
 
-static int __get_index(const SimpleSet* set, const char* key, key_size_tt len,
+static int _set_get_index(const SimpleSet* set, const char* key, key_size_tt len,
  uint64_t hash, uint64_t* index)
 {
 	uint64_t i, idx;
@@ -353,7 +353,7 @@ static int __get_index(const SimpleSet* set, const char* key, key_size_tt len,
 	}
 }
 
-static int __assign_node(SimpleSet* set, const char* key, key_size_tt len,
+static int _set_assign_node(SimpleSet* set, const char* key, key_size_tt len,
  uint64_t hash, uint64_t index)
 {
 	set->nodes[index] = (simple_set_node*) malloc(sizeof(simple_set_node));
@@ -364,21 +364,21 @@ static int __assign_node(SimpleSet* set, const char* key, key_size_tt len,
 	return SET_TRUE;
 }
 
-static void __free_index(SimpleSet* set, uint64_t index)
+static void _set_free_index(SimpleSet* set, uint64_t index)
 {
 	free(set->nodes[index]->_key);
 	free(set->nodes[index]);
 	set->nodes[index] = NULL;
 }
 
-static int __relayout_nodes(SimpleSet* set, uint64_t start, short end_on_null)
+static int _set_relayout_nodes(SimpleSet* set, uint64_t start, short end_on_null)
 {
 	int moved_one = 1;
 	uint64_t index = 0, j;
 	for (j = 0; j < set->number_nodes; ++j) {
 		uint64_t i = (start + j) % set->number_nodes;
 		if (set->nodes[i] != NULL) {
-			int res = __get_index(set, set->nodes[i]->_key, set->nodes[i]->_len,
+			int res = _set_get_index(set, set->nodes[i]->_key, set->nodes[i]->_len,
 			 set->nodes[i]->_hash, &index);
 			if (res == SET_FALSE) {
 				moved_one = 0;

@@ -236,17 +236,17 @@ extern "C" {
 
 	// void set_printf(SimpleSet *set); /* TODO: implement */
 
-#define SET_TRUE 0
-#define SET_FALSE -1
-#define SET_MALLOC_ERROR -2
-#define SET_CIRCULAR_ERROR -3
-#define SET_OCCUPIED_ERROR -4
-#define SET_ALREADY_PRESENT 1
+#define SET_TRUE (0)
+#define SET_FALSE (-1)
+#define SET_MALLOC_ERROR (-2)
+#define SET_CIRCULAR_ERROR (-3)
+#define SET_OCCUPIED_ERROR (-4)
+#define SET_ALREADY_PRESENT (1)
 
-#define SET_RIGHT_GREATER 3
-#define SET_LEFT_GREATER 1
-#define SET_EQUAL 0
-#define SET_UNEQUAL 2
+#define SET_RIGHT_GREATER (3)
+#define SET_LEFT_GREATER (1)
+#define SET_EQUAL (0)
+#define SET_UNEQUAL (2)
 
 #ifdef __cplusplus
 } // extern "C"
