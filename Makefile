@@ -21,7 +21,7 @@ all: libraries examples test
 # --- Library Compilation Targets ---
 
 # Rule to compile all libraries
-libraries: string bitarray fileutils linkedlist doublylinkedlist graph queue stack permutations arena hash logger bloom set
+libraries: string bitarray fileutils linkedlist doublylinkedlist graph queue stack permutations arena hash logger bloom set cli
 
 # Individual library targets (compiling .c files into .o objects in LIBDIR)
 string:
@@ -65,6 +65,9 @@ bloom:
 
 set:
 	$(CC) $(STD) -c $(SRCDIR)/set.c -o $(LIBDIR)/set-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+cli:
+	$(CC) $(STD) -c $(SRCDIR)/set.c -o $(LIBDIR)/cli-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 # --- Build Variants ---
 
