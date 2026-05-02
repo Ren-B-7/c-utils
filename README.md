@@ -1,8 +1,6 @@
 # c-utils
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![GitHub release](https://img.shields.io/github/release/barrust/c-utils.svg)](https://github.com/barrust/c-utils/releases)
-[![C/C++ CI](https://github.com/barrust/c-utils/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/barrust/c-utils/actions/workflows/ci.yml)
 
 This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but are ended up written, as needed, and usually differently each time and without unit tests. The goal is to provide a single place to store each of these libraries and to provide unit tests.
 
