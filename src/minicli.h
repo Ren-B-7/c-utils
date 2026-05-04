@@ -33,12 +33,14 @@ typedef struct {
 	const char* description;
 } CliInitParams;
 
+#define DEFAULT_ARG_CAPACITY 10
+
 static inline int cli_init(CliParser* parser, CliInitParams params)
 {
 	parser->name = params.name;
 	parser->description = params.description;
 	parser->arg_count = 0;
-	parser->arg_capacity = 10;
+	parser->arg_capacity = DEFAULT_ARG_CAPACITY;
 	parser->registered_args =
 	 (CliArgument*) malloc(sizeof(CliArgument) * parser->arg_capacity);
 	return set_init(&parser->arguments);

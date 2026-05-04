@@ -57,9 +57,11 @@ extern "C" {
 	*/
 	int set_init_alt(SimpleSet* set, uint64_t num_els, set_hash_function hash);
 
+#define DEFAULT_SET_CAPACITY 1024
+
 	static __inline__ int set_init(SimpleSet* set)
 	{
-		return set_init_alt(set, 1024, NULL);
+		return set_init_alt(set, DEFAULT_SET_CAPACITY, NULL);
 	}
 
 	/* Utility function to clear out the set */
@@ -139,7 +141,7 @@ extern "C" {
 	    The union of a set A with a B is the set of elements that are in either
 	    set A or B. The union is denoted as A ∪ B
 	*/
-	int set_union(SimpleSet* res, const SimpleSet* s1, const SimpleSet* s2);
+	int set_union(SimpleSet* res, const SimpleSet* set1, const SimpleSet* set2);
 
 	/*  Set res to the intersection of s1 and s2
 	    res = s1 ∩ s2
@@ -148,7 +150,7 @@ extern "C" {
 	    both set A and B. The intersection is denoted as A ∩ B
 	*/
 	int
-	set_intersection(SimpleSet* res, const SimpleSet* s1, const SimpleSet* s2);
+	set_intersection(SimpleSet* res, const SimpleSet* set1, const SimpleSet* set2);
 
 	/*  Set res to the difference between s1 and s2
 	    res = s1∖ s2
@@ -159,7 +161,7 @@ extern "C" {
 	    for S ∖ T is S − T.
 	*/
 	int
-	set_difference(SimpleSet* res, const SimpleSet* s1, const SimpleSet* s2);
+	set_difference(SimpleSet* res, const SimpleSet* set1, const SimpleSet* set2);
 
 	/*  Set res to the symmetric difference between s1 and s2
 	    res = s1 △ s2
@@ -168,8 +170,8 @@ extern "C" {
 	   either in A or in B but not in both. Symmetric difference is denoted A △
 	   B or A * B
 	*/
-	int set_symmetric_difference(SimpleSet* res, const SimpleSet* s1,
-	 const SimpleSet* s2);
+	int set_symmetric_difference(SimpleSet* res, const SimpleSet* set1,
+	 const SimpleSet* set2);
 
 	/*  Return SET_TRUE if test is fully contained in s2; returns SET_FALSE
 	    otherwise
@@ -192,7 +194,7 @@ extern "C" {
 	static __inline__ int
 	set_is_superset(const SimpleSet* test, const SimpleSet* against)
 	{
-		return set_is_subset(against, test);
+		return set_is_subset(test, against);
 	}
 
 	/*  Strict subset ensures that the test is a subset of against, but that
@@ -217,7 +219,7 @@ extern "C" {
 	static __inline__ int
 	set_is_superset_strict(const SimpleSet* test, const SimpleSet* against)
 	{
-		return set_is_subset_strict(against, test);
+		return set_is_subset_strict(test, against);
 	}
 
 	/*  Return an array of the elements in the set
