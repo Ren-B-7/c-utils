@@ -46,7 +46,7 @@ static inline int cli_init(CliParser* parser, CliInitParams params)
 	return set_init(&parser->arguments);
 }
 
-static inline void cli_add_argument(CliParser* parser, CliArgument arg)
+static void cli_add_argument(CliParser* parser, CliArgument arg)
 {
 	if (parser->arg_count >= parser->arg_capacity) {
 		parser->arg_capacity *= 2;
@@ -64,14 +64,34 @@ static inline void cli_add_argument(CliParser* parser, CliArgument arg)
 	}
 }
 
+static inline void cli_print_help(const CliParser* parser)
+{
+	printf("Usage: %s [options]\n\n", parser->name);
+	printf("%s\n\n", parser->description);
+	printf("Options:\n");
+	for (size_t i = 0; i < parser->arg_count; i++) {
+		const CliArgument* arg = &parser->registered_args[i];
+		if (arg->shorthand) {
+			printf("  %-16s %-4s  %s\n", arg->name, arg->shorthand,
+			 arg->description);
+		} else {
+			printf("  %-16s       %s\n", arg->name, arg->description);
+		}
+	}
+	printf("  %-16s %-4s  %s\n", "--help", "-h", "Display this help");
+}
+
 static inline void cli_parse(CliParser* parser, int argc, char** argv)
 {
 	for (int i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+			cli_print_help(parser);
+			return;
+		}
 		for (size_t j = 0; j < parser->arg_count; j++) {
 			if (strcmp(argv[i], parser->registered_args[j].name) == 0 ||
 			 (parser->registered_args[j].shorthand &&
 			  strcmp(argv[i], parser->registered_args[j].shorthand) == 0)) {
-				// Simple callback execution: pass remaining args
 				parser->registered_args[j].callback(argc - i - 1, &argv[i + 1],
 				 parser->registered_args[j].user_data);
 				return;
