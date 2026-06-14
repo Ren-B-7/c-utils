@@ -12,7 +12,12 @@ SRCS = $(wildcard $(SRCDIR)/*.c) $(wildcard $(TESTDIR)/*.c) $(wildcard $(EXAMPLE
 HDRS = $(wildcard $(SRCDIR)/*.h)
 
 # Clang-tidy configuration
-CLANG_TIDY_CHECKS =
+# Disabled:
+# - readability-identifier-length: Too strict for test code
+# - readability-magic-numbers: Too strict for test code
+# - bugprone-suspicious-string-compare: Often triggers false positives in macros
+# - clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling: False positives in test macros
+CLANG_TIDY_CHECKS = -*,bugprone-*,clang-analyzer-*,readability-*,-readability-identifier-length,-readability-magic-numbers,-bugprone-suspicious-string-compare,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
 CLANG_TIDY_FLAGS = -I$(SRCDIR)
 
 # Default target

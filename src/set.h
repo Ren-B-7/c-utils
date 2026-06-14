@@ -149,8 +149,8 @@ extern "C" {
 	    The intersection of a set A with a B is the set of elements that are in
 	    both set A and B. The intersection is denoted as A ∩ B
 	*/
-	int
-	set_intersection(SimpleSet* res, const SimpleSet* set1, const SimpleSet* set2);
+	int set_intersection(SimpleSet* res, const SimpleSet* set1,
+	 const SimpleSet* set2);
 
 	/*  Set res to the difference between s1 and s2
 	    res = s1∖ s2
@@ -160,8 +160,8 @@ extern "C" {
 	    of B: x ∈ A ∖ B ⟺ x ∈ A ∧ x ∉ B. Another frequently seen notation
 	    for S ∖ T is S − T.
 	*/
-	int
-	set_difference(SimpleSet* res, const SimpleSet* set1, const SimpleSet* set2);
+	int set_difference(SimpleSet* res, const SimpleSet* set1,
+	 const SimpleSet* set2);
 
 	/*  Set res to the symmetric difference between s1 and s2
 	    res = s1 △ s2
